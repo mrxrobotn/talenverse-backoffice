@@ -14,6 +14,28 @@ Future<List<Session>> fetchSessions() async {
   }
 }
 
+Future<Map<String, dynamic>> getSessionById(String sessionId) async {
+  final response = await http.get(Uri.parse('$apiUrl/sessions/id/$sessionId'));
+
+  if (response.statusCode == 200) {
+    return json.decode(response.body);
+  } else {
+    // Handle error cases
+    throw Exception('Failed to load session');
+  }
+}
+
+Future<String?> fetchSessionIdByName(String name) async {
+  final response = await http.get(Uri.parse('$apiUrl/sessions/$name'));
+
+  if (response.statusCode == 200) {
+    Map<String, dynamic> jsonResponse = json.decode(response.body);
+    return jsonResponse['_id'];
+  } else {
+    throw Exception('Failed to fetch session ID. Status code: ${response.statusCode}');
+  }
+}
+
 Future<List<Session>> fetchActiveSessions() async {
   final response = await http.get(Uri.parse('$apiUrl/sessions'));
 
@@ -28,9 +50,8 @@ Future<List<Session>> fetchActiveSessions() async {
   }
 }
 
-Future<void> updateSession(String name, String date, int slotTal, int slotEnt, bool isActive, List<Map<String, dynamic>> users, bool shouldUpdateUsers) async {
+Future<void> updateSession(String name, int slotTal, int slotEnt, bool isActive, List<dynamic> users, bool shouldUpdateUsers) async {
   final Map<String, dynamic> requestBody = {
-    'date': date,
     'slotTal': slotTal,
     'slotEnt': slotEnt,
     'isActive': isActive,
@@ -56,7 +77,7 @@ Future<void> updateSession(String name, String date, int slotTal, int slotEnt, b
   }
 }
 
-Future<void> createSession(String name, String date, int slotTal, int slotEnt, bool isActive, List<Map<String, String>> users) async {
+Future<void> createSession(String name, int slotTal, int slotEnt, bool isActive, List<String> users, List<Map<String, dynamic>> votes) async {
 
   final response = await http.post(
     Uri.parse('$apiUrl/sessions'),
@@ -65,16 +86,16 @@ Future<void> createSession(String name, String date, int slotTal, int slotEnt, b
     },
     body: jsonEncode(<String, dynamic>{
       'name': name,
-      'date': date,
       'slotTal': slotTal,
       'slotEnt': slotEnt,
       'isActive': isActive,
       'users': users,
+      'votes': votes,
     }),
   );
 
   if (response.statusCode == 200) {
-    print('Data posted successfully');
+    print('Session Data posted successfully');
   } else {
     // Handle error
     print('Error posting data: ${response.statusCode}');
@@ -82,16 +103,15 @@ Future<void> createSession(String name, String date, int slotTal, int slotEnt, b
   }
 }
 
-Future<void> addUserToSession(String sessionName, String userId, String role) async {
+Future<void> addUserToSession(String sessionName, String userId) async {
 
   final response = await http.put(
     Uri.parse('$apiUrl/sessions/$sessionName/users'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(<String, String>{
-      'userId': userId,
-      'role': role,
+    body: jsonEncode(<String, dynamic>{
+      '_id': userId,
     }),
   );
 
@@ -100,6 +120,26 @@ Future<void> addUserToSession(String sessionName, String userId, String role) as
   } else {
     // Handle error
     print('Error adding user: ${response.statusCode}');
+    print(response.body);
+  }
+}
+
+Future<void> updateSessionUser(String sessionName, String userId, String room) async {
+  final response = await http.put(
+    Uri.parse('$apiUrl/sessions/$sessionName/users/$userId'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, dynamic>{
+      'room': room,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    print('Room updated successfully');
+  } else {
+    // Handle error
+    print('Error updating room: ${response.statusCode}');
     print(response.body);
   }
 }
@@ -150,15 +190,14 @@ Future<void> deleteUserFromSession(String sessionName, String userId, int slotTa
       final Map<String, dynamic> sessionData = jsonDecode(sessionResponse.body);
 
       // Retrieve the users array
-      List<Map<String, dynamic>> users = List<Map<String, dynamic>>.from(sessionData['users']);
+      List<dynamic> users = List<String>.from(sessionData['users']);
 
       // Remove the user with the specified userId
-      users.removeWhere((user) => user['userId'] == userId);
+      users.removeWhere((user) => user['_id'] == userId);
 
       // Update the session with the modified users array
       await updateSession(
         sessionName,
-        sessionData['date'],
         slotTal,
         slotEnt,
         sessionData['isActive'],

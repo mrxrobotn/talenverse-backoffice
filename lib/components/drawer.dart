@@ -8,12 +8,14 @@ import '../views/admin/components/admin_provider.dart';
 class MyDrawer extends StatefulWidget {
   final VoidCallback displayRequests;
   final VoidCallback displayUsers;
+  final VoidCallback displayEvents;
   final VoidCallback displaySessions;
 
   const MyDrawer({
     Key? key,
     required this.displayRequests,
     required this.displayUsers,
+    required this.displayEvents,
     required this.displaySessions,
   }) : super(key: key);
 
@@ -109,6 +111,11 @@ class _MyDrawerState extends State<MyDrawer> {
                   ),
                 );
               },
+            ),
+            ListTile(
+              leading: const Icon(Icons.event, color: backgroundColorLight),
+              title: const Text(' Events ' ,style: TextStyle(color: backgroundColorLight)),
+              onTap: widget.displayEvents,
             ),
             ListTile(
               leading: const Icon(Icons.event, color: backgroundColorLight),

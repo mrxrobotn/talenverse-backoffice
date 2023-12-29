@@ -10,7 +10,7 @@ const Color cardColor = Colors.green;
 
 const String apiUrl = 'http://localhost:3000/api/v1';
 
-List<String> roles = ['Entrepreneur', 'Talent', 'Visitor'];
+List<String> roles = ['Admin', 'Staff', 'Entrepreneur', 'Talent', 'Visitor'];
 
 class CustomPositioned extends StatelessWidget {
   const CustomPositioned({super.key, required this.child, this.size = 100});
@@ -35,3 +35,27 @@ class CustomPositioned extends StatelessWidget {
   }
 }
 
+const String htmlFirstContent = '''
+      <html>
+        <head></head>
+        <body>
+          <p>Hello ,</p>
+          <p>Thank you for your request. To complete your registration, please click the following link:</p>
+          <a href="http://localhost:53524/#/sessions">Complete Registration</a>
+          <p>If you have any questions, feel free to contact us.</p>
+        </body>
+      </html>
+    ''';
+
+const String htmlSecondContent = '''
+      <html>
+        <head></head>
+        <body>
+          <p>Hello ,</p>
+          <p>Thank you for your request. You are now accepted to be a part in the TalentVerse space</p>
+          <p>Please follow this link to check what room are you in.</p>
+          <a href="http://localhost:53524/#/sessions">Visit link</a>
+          <p>If you have any questions, feel free to contact us.</p>
+        </body>
+      </html>
+    ''';

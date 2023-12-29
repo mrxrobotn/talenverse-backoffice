@@ -1,5 +1,6 @@
 import 'package:Netinfo_Metaverse/views/admin/components/admin_provider.dart';
 import 'package:Netinfo_Metaverse/views/admin/components/sessions_page.dart';
+import 'package:Netinfo_Metaverse/views/user/request_session_page.dart';
 import 'package:provider/provider.dart';
 import 'views/admin/admin_dashboard.dart';
 import 'views/admin/admin_login_screen.dart';
@@ -33,11 +34,7 @@ class MyApp extends StatelessWidget {
             return userProvider.admin.isLoggedIn ? const AdminDashboard() : const AdminPage();
           },
         ),
-        '/sessions': (context) => Consumer<AdminProvider>(
-          builder: (context, userProvider, _) {
-            return userProvider.admin.isLoggedIn ? const SessionsPage() : const AdminPage();
-          },
-        ),
+        '/sessions': (context) => const GetAccess(),
       },
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFEEF1F8),

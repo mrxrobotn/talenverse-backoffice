@@ -1,4 +1,3 @@
-import 'package:Netinfo_Metaverse/views/user/components/sessions_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
@@ -24,12 +23,15 @@ class _RequestFormState extends State<RequestForm> {
   late SMITrigger reset;
   late SMITrigger confetti;
 
-  String role = 'Entrepreneur';
   TextEditingController epicGamesId = TextEditingController();
   TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
+  List<String> events = [];
+  List<String> sessions = [];
+  String room = "0";
   bool canAccess = false;
   bool isAuthorized = false;
+  String role = 'Entrepreneur';
 
   StateMachineController getRiveController(Artboard artboard) {
     StateMachineController? controller =
@@ -45,73 +47,30 @@ class _RequestFormState extends State<RequestForm> {
         Future.delayed(const Duration(seconds: 2), () async {
           if (userExists) {
             print('User exists.');
-            final userData = await getUserData(epicGamesId);
-            if (userData != null && userData['canAccess'] == true && userData['isAuthorized'] == true) {
-              print('You are authorized and have access');
-              showDialog<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Welcome back!'),
-                    content: const SingleChildScrollView(
-                      child: ListBody(
-                        children: <Widget>[
-                          Text(
-                              'Your request to join a session has been accepted. Enjoy the experience'),
-                        ],
-                      ),
+            showDialog<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Alert!'),
+                  content: const SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text(
+                            'You already have a request sent with this EpicGames ID. Please check your email.'),
+                      ],
                     ),
-                    actions: <Widget>[
-                      TextButton(
-                        child: const Text('OK'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-            else if (userData != null && userData['isAuthorized'] == true) {
-
-              // User is authorized
-              print('You are authorized.');
-              showDialog<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return SessionsList(role: userData['role'], userId: userData['epicGamesId']);
-                },
-              );
-            }
-            else {
-              // User is not authorized
-              print('User is not authorized.');
-              showDialog<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('you are not authorized.'),
-                    content: const SingleChildScrollView(
-                      child: ListBody(
-                        children: <Widget>[
-                          Text(
-                              'You already have a request sent with this EpicGames ID. Please wait for the admin approval.'),
-                        ],
-                      ),
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
                     ),
-                    actions: <Widget>[
-                      TextButton(
-                        child: const Text('OK'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
+                  ],
+                );
+              },
+            );
           }
           else {
             SendResquestData(context);
@@ -137,13 +96,11 @@ class _RequestFormState extends State<RequestForm> {
           setState(() {
             isShowLoading = false;
           });
-          createUser(epicGamesId.text, name.text, email.text, canAccess, isAuthorized, role);
+          createUser(epicGamesId.text, name.text, email.text, events, sessions, room, canAccess, isAuthorized, role);
           epicGamesId.text = "";
           name.text = "";
           email.text = "";
           role = "Entrepreneur";
-          canAccess = false;
-          isAuthorized = false;
           showDialog<void>(
             context: context,
             barrierDismissible: false,
@@ -154,7 +111,7 @@ class _RequestFormState extends State<RequestForm> {
                   child: ListBody(
                     children: <Widget>[
                       Text(
-                          'Your request has been succesfully registered. Please monitor your email inbox for additional information.'),
+                          'Your request has been successfully registered. Please wait for admin approval and monitor your email inbox for additional informations.'),
                     ],
                   ),
                 ),
@@ -223,7 +180,7 @@ class _RequestFormState extends State<RequestForm> {
                       validator: (value) {
                         if (value!.isEmpty) {
                           return "Please enter an email address";
-                        } else if (!value.contains('@')) {
+                        } else if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$').hasMatch(value)) {
                           return "Please enter a valid email address";
                         }
                         return null;

@@ -87,12 +87,15 @@ class _RequestFormState extends State<RequestForm> {
   late SMITrigger reset;
   late SMITrigger confetti;
 
-  String role = 'Entrepreneur';
   TextEditingController epicGamesId = TextEditingController();
   TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
+  List<String> events = [];
+  List<String> sessions = [];
+  String room = "0";
   bool canAccess = false;
   bool isAuthorized = false;
+  String role = 'Entrepreneur';
 
   StateMachineController getRiveController(Artboard artboard) {
     StateMachineController? controller =
@@ -143,7 +146,7 @@ class _RequestFormState extends State<RequestForm> {
               showDialog<void>(
                 context: context,
                 builder: (BuildContext context) {
-                  return SessionsList(role: userData['role'], userId: userData['epicGamesId']);
+                  return SessionsList(role: userData['role'], userId: userData['_id'], name: userData['name'], room: userData['room'],);
                 },
               );
             }
@@ -200,14 +203,12 @@ class _RequestFormState extends State<RequestForm> {
           setState(() {
             isShowLoading = false;
           });
-          createUser(
-              epicGamesId.text, name.text, email.text, canAccess, isAuthorized, role);
+          createUser(epicGamesId.text, name.text, email.text, events, sessions, room, canAccess, isAuthorized, role);
           epicGamesId.text = "";
           name.text = "";
           email.text = "";
           role = "Entrepreneur";
-          canAccess = false;
-          isAuthorized = false;
+
           showDialog<void>(
             context: context,
             barrierDismissible: false,

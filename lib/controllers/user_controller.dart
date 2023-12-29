@@ -3,8 +3,7 @@ import 'package:http/http.dart' as http;
 import '../constants.dart';
 import '../models/user.dart';
 
-Future<void> createUser(String epicGamesId, String name, String email,
-    bool canAccess,bool isAuthorized, String role) async {
+Future<void> createUser(String epicGamesId, String name, String email, List<String> events, List<String> sessions, String room, bool canAccess,bool isAuthorized, String role) async {
 
   final response = await http.post(
     Uri.parse('$apiUrl/users'),
@@ -15,6 +14,9 @@ Future<void> createUser(String epicGamesId, String name, String email,
       'epicGamesId': epicGamesId,
       'name': name,
       'email': email,
+      'events': events,
+      'sessions': sessions,
+      'room': room,
       'canAccess': canAccess,
       'isAuthorized': isAuthorized,
       'role': role,
@@ -61,14 +63,16 @@ Future<List<User>> fetchUsers() async {
   }
 }
 
-
-Future<void> updateUserAccess(String epicGamesId, bool canAccess, bool isAuthorized) async {
+Future<void> updateUser(String epicGamesId, List<String> events, List<String> sessions, String room, bool canAccess, bool isAuthorized) async {
   final response = await http.put(
     Uri.parse('$apiUrl/users/$epicGamesId'),
     headers: {
       'Content-Type': 'application/json',
     },
     body: jsonEncode({
+      'events': events,
+      'sessions': sessions,
+      'room': room,
       'canAccess': canAccess,
       'isAuthorized': isAuthorized,
     }),
@@ -81,7 +85,6 @@ Future<void> updateUserAccess(String epicGamesId, bool canAccess, bool isAuthori
     throw Exception('Failed to update user');
   }
 }
-
 
 Future<void> updateUserRole(String epicGamesId, String role) async {
   final response = await http.patch(

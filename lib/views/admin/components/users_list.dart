@@ -18,7 +18,7 @@ class _UsersListState extends State<UsersList> {
   late TextEditingController searchController;
   late List<User> allUsers;
 
-  List<String> rolesFilter = ['All', 'Entrepreneur', 'Talent', 'Visitor'];
+  List<String> rolesFilter = ['All', 'Admin', 'Staff', 'Entrepreneur', 'Talent', 'Visitor'];
   String selectedRoleFilter = 'All';
 
   @override
@@ -290,8 +290,7 @@ class _UsersListState extends State<UsersList> {
                                 TextButton(
                                   child: const Text('Yes'),
                                   onPressed: () {
-                                    updateUserAccess(user.epicGamesId,
-                                        !user.canAccess, user.isAuthorized);
+                                    updateUser(user.epicGamesId, user.events, user.sessions, user.room, !user.canAccess, user.isAuthorized);
                                     Navigator.of(context).pop();
                                     const snackBar = SnackBar(
                                       content: Text(
@@ -390,8 +389,7 @@ class _UsersDataSource extends DataTableSource {
                     TextButton(
                       child: const Text('Yes'),
                       onPressed: () {
-                        updateUserAccess(user.epicGamesId, !user.canAccess,
-                            user.isAuthorized);
+                        updateUser(user.epicGamesId, user.events, user.sessions, user.room, !user.canAccess, user.isAuthorized);
                         Navigator.of(context).pop();
                         const snackBar = SnackBar(
                           content:

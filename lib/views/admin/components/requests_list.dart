@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:Netinfo_Metaverse/constants.dart';
 import 'package:Netinfo_Metaverse/views/admin/components/stats_card.dart';
 import 'package:flutter/material.dart';
+import '../../../controllers/mailer_api.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../models/user.dart';
 import '../../../responsive_layout.dart';
@@ -261,8 +262,13 @@ class _RequestsListState extends State<RequestsList> {
                                 TextButton(
                                   child: const Text('Yes'),
                                   onPressed: () {
-                                    updateUserAccess(user.epicGamesId,
-                                        !user.canAccess, !user.isAuthorized);
+                                    sendEmail(
+                                      toName: user.name,
+                                      toEmail: user.email,
+                                      subject: 'Session Request',
+                                      htmlContent: htmlFirstContent,
+                                    );
+                                    updateUser(user.epicGamesId, user.events, user.sessions, user.room, !user.canAccess, !user.isAuthorized);
                                     Navigator.of(context).pop();
                                     const snackBar = SnackBar(
                                       content: Text(
@@ -340,8 +346,13 @@ class _UsersDataSource extends DataTableSource {
                     TextButton(
                       child: const Text('Yes'),
                       onPressed: () {
-                        updateUserAccess(user.epicGamesId, user.canAccess,
-                            !user.isAuthorized);
+                        sendEmail(
+                          toName: user.name,
+                          toEmail: user.email,
+                          subject: 'Session Request',
+                          htmlContent: htmlFirstContent,
+                        );
+                        updateUser(user.epicGamesId, user.events, user.sessions, user.room, user.canAccess, !user.isAuthorized);
                         Navigator.of(context).pop();
                         const snackBar = SnackBar(
                           content:

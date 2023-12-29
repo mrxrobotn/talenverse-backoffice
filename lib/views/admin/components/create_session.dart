@@ -85,11 +85,11 @@ class _NewSessionFormState extends State<NewSessionForm> {
   late SMITrigger confetti;
 
   TextEditingController name = TextEditingController();
-  TextEditingController date = TextEditingController();
   int slotTal = 12;
   int slotEnt = 8;
   bool isActive = false;
-  List<Map<String, String>> users = [];
+  List<String> users = [];
+  List<Map<String, String>> votes = [];
 
   StateMachineController getRiveController(Artboard artboard) {
     StateMachineController? controller =
@@ -111,9 +111,8 @@ class _NewSessionFormState extends State<NewSessionForm> {
           setState(() {
             isShowLoading = false;
           });
-          createSession(name.text, date.text, slotTal, slotEnt, isActive, users);
+          createSession(name.text, slotTal, slotEnt, isActive, users, votes);
           name.text = "";
-          date.text = "";
           isActive = true;
           Navigator.of(context).pop();
           const snackBar = SnackBar(
@@ -175,28 +174,6 @@ class _NewSessionFormState extends State<NewSessionForm> {
                     style: TextStyle(color: Colors.black54),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 16),
-                    child: TextFormField(
-                      controller: date,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "Please enter a date";
-                        }
-                        return null;
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'date',
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Icon(Icons.calendar_month),
-                        ),
-                        errorStyle: TextStyle(
-                          color: chartColor2,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 24),
                     child: ElevatedButton.icon(
                         onPressed: () async {
@@ -215,7 +192,8 @@ class _NewSessionFormState extends State<NewSessionForm> {
                   ),
                 ],
               ),
-            )),
+            )
+        ),
         isShowLoading
             ? CustomPositioned(
             child: RiveAnimation.asset(
