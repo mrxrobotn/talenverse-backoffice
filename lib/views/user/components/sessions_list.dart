@@ -219,15 +219,8 @@ class _SessionsListState extends State<SessionsList> {
               ? () async {
             bool userExists = await checkUserInSessions(widget.userId);
             if (!userExists) {
-              if (widget.role == "Talent") {
-                selectedSession!.slotTal--;
-              } else if (widget.role == "Entrepreneur") {
-                selectedSession!.slotEnt--;
-              }
-
-              Future.delayed(const Duration(seconds: 2), () async {
+              Future.delayed(const Duration(seconds: 1), () async {
                 addUserToSession(selectedSession!.name, widget.userId);
-                updateSlots(selectedSession!.name, selectedSession!.slotTal, selectedSession!.slotEnt);
                 Navigator.of(context).pop();
               });
             } else {

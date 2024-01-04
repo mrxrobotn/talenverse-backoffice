@@ -27,17 +27,23 @@ Future<void> createEvent(String name, String date, List<String> sessions) async 
 }
 
 Future<List<Event>> fetchEvents() async {
-  final response = await http.get(Uri.parse('$apiUrl/events'));
+  try {
+    final response = await http.get(Uri.parse('$apiUrl/events'));
 
-  if (response.statusCode == 200) {
-    List<dynamic> jsonResponse = json.decode(response.body);
-    return jsonResponse.map((user) => Event.fromJson(user)).toList();
-  } else {
-    throw Exception('Failed to load events. Status code: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = json.decode(response.body);
+      List<dynamic> documents = jsonResponse['documents'];
+
+      return documents.map((event) => Event.fromJson(event)).toList();
+    } else {
+      throw Exception('Failed to load events. Status code: ${response.statusCode}');
+    }
+  } catch (error) {
+    throw Exception('Failed to load events. Error: $error');
   }
 }
 
-Future<String?> findEventBySession(String sessionId) async {
+Future<String> findEventBySessionId(String sessionId) async {
   final response = await http.get(Uri.parse('$apiUrl/events/sessions?sessionId=$sessionId'));
 
   if (response.statusCode == 200) {
@@ -46,7 +52,7 @@ Future<String?> findEventBySession(String sessionId) async {
     return data['eventId'];
   } else if (response.statusCode == 404) {
     // Handle the case where no matching event is found
-    return null;
+    return "";
   } else {
     // If the server did not return a 200 OK or 404 Not Found response,
     // throw an exception.

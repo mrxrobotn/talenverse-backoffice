@@ -3,12 +3,11 @@ import 'package:Netinfo_Metaverse/controllers/event_controller.dart';
 import 'package:Netinfo_Metaverse/controllers/mailer_api.dart';
 import 'package:Netinfo_Metaverse/controllers/user_controller.dart';
 import 'package:Netinfo_Metaverse/models/session.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 import '../../../constants.dart';
 import '../../../controllers/session_controller.dart';
-import 'create_session.dart';
+
 
 class SessionsPage extends StatefulWidget {
   const SessionsPage({super.key});
@@ -65,56 +64,24 @@ class _SessionsPageState extends State<SessionsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               children: [
-                const Text(
+                Text(
                   '/',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
+                SizedBox(height: 8),
+                Text(
                   'Sessions',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        _btnAnimationController.isActive = true;
-                        Future.delayed(const Duration(milliseconds: 500), () {
-                          setState(() {
-                            isSignInDialogShown = true;
-                          });
-                          CreateSession(context, onClosed: (_) {
-                            setState(() {
-                              isSignInDialogShown = false;
-                            });
-                          });
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: backgroundColorDark,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                      icon: const Icon(
-                          Icons.add,
-                          color: backgroundColorLight),
-                      label: const Text('Create Session',
-                        style: TextStyle(fontSize: 12, color: backgroundColorLight),
-                      ),
-                    ),
-                  ],
-                ),
+
               ],
             ),
             const SizedBox(height: 8),
@@ -196,6 +163,15 @@ class _SessionsPageState extends State<SessionsPage> {
                         DataColumn(
                             label: Row(
                               children: [
+                                Icon(Icons.notifications_active),
+                                SizedBox(width: 5),
+                                Text('Status', style: TextStyle(fontWeight: FontWeight.bold))
+                              ],
+                            )
+                        ),
+                        DataColumn(
+                            label: Row(
+                              children: [
                                 Icon(Icons.lock_outlined, color: chartColor1),
                                 SizedBox(width: 5),
                                 Text('Action', style: TextStyle(fontWeight: FontWeight.bold))
@@ -233,6 +209,7 @@ class _UsersDataSource extends DataTableSource {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController room = TextEditingController();
+  TextEditingController newSessionId = TextEditingController();
 
   @override
   DataRow getRow(int index) {
@@ -241,110 +218,112 @@ class _UsersDataSource extends DataTableSource {
       DataCell(Text(session.name)),
       DataCell(Text('${session.slotTal.toString()} / 12')),
       DataCell(Text('${session.slotEnt.toString()} / 8')),
-      DataCell(TextButton(
-        onPressed: () async {
-          List<dynamic> usersList = await getUsersInSession(session.name);
-          _showUsersPopup(session.name, session.slotTal, session.slotEnt, session.isActive, session.users, usersList, rolesFilter, session.id);
-        },
-        child: const Text('Show users'),)),
       DataCell(
-        Row(
-          children: [
-            ElevatedButton.icon(
-              onPressed: () {
-                showDialog<void>(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Confirmation'),
-                      content: Text(session.isActive
-                          ? 'Are you sure you want to desactivate the session: ${session.name}?'
-                          : 'Are you sure you want to activate the session: ${session.name}?'),
-                      actions: <Widget>[
-                        TextButton(
-                          child: const Text('Yes'),
-                          onPressed: () {
-                            updateSession(session.name, session.slotTal, session.slotEnt, !session.isActive, session.users, false);
-                            Navigator.of(context).pop();
-                            const snackBar = SnackBar(
-                              content:
-                              Text('Session updated with success'),
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                          },
-                        ),
-                        TextButton(
-                          child: const Text('No'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
+        TextButton(
+          onPressed: () async {
+            List<dynamic> usersList = await getUsersDataInSession(session.name);
+
+            _showUsersPopup(session.name, session.slotTal, session.slotEnt, session.isActive, session.users, usersList, rolesFilter, session.id );
+          },
+          child: const Text('Show users'),
+        )
+      ),
+      DataCell(
+        ElevatedButton.icon(
+          onPressed: () {
+            showDialog<void>(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Confirmation'),
+                  content: Text(session.isActive
+                      ? 'Are you sure you want to desactivate the session: ${session.name}?'
+                      : 'Are you sure you want to activate the session: ${session.name}?'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('Yes'),
+                      onPressed: () {
+                        updateSession(session.name, session.slotTal, session.slotEnt, !session.isActive, session.users, false);
+                        Navigator.of(context).pop();
+                        const snackBar = SnackBar(
+                          content:
+                          Text('Session updated with success'),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      },
+                    ),
+                    TextButton(
+                      child: const Text('No'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: session.isActive ? chartColor2 : chartColor1,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              icon: Icon(
-                  session.isActive ? Icons.lock_outline : Icons.lock_open_outlined,
-                  color: backgroundColorLight),
-              label: Text(
-                session.isActive ? 'Desactivate' : 'Activate',
-                style: const TextStyle(fontSize: 12, color: backgroundColorLight),
-              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: session.isActive ? chartColor2 : chartColor1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
             ),
-            ElevatedButton.icon(
-              onPressed: () {
-                showDialog<void>(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Confirmation'),
-                      content: const Text('Are you sure you want to delete this session?'),
-                      actions: <Widget>[
-                        TextButton(
-                          child: const Text('Yes'),
-                          onPressed: () {
-                            deleteSession(session.name);
-                            Navigator.of(context).pop();
-                            const snackBar = SnackBar(
-                              content:
-                              Text('Session deleted'),
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                          },
-                        ),
-                        TextButton(
-                          child: const Text('No'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
+          ),
+          icon: Icon(
+              session.isActive ? Icons.lock_outline : Icons.lock_open_outlined,
+              color: backgroundColorLight),
+          label: Text(
+            session.isActive ? 'Desactivate' : 'Activate',
+            style: const TextStyle(fontSize: 12, color: backgroundColorLight),
+          ),
+        ),
+      ),
+      DataCell(
+        ElevatedButton.icon(
+          onPressed: () {
+            showDialog<void>(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Confirmation'),
+                  content: const Text('Are you sure you want to delete this session?'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('Yes'),
+                      onPressed: () {
+                        deleteSession(session.name);
+                        Navigator.of(context).pop();
+                        const snackBar = SnackBar(
+                          content:
+                          Text('Session deleted'),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      },
+                    ),
+                    TextButton(
+                      child: const Text('No'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: chartColor2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              icon: const Icon(Icons.delete,
-                  color: backgroundColorLight),
-              label: const Text( 'Delete',
-                style: TextStyle(fontSize: 12, color: backgroundColorLight),
-              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: chartColor2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
             ),
-          ],
+          ),
+          icon: const Icon(Icons.delete,
+              color: backgroundColorLight),
+          label: const Text( 'Delete',
+            style: TextStyle(fontSize: 12, color: backgroundColorLight),
+          ),
         ),
       ),
     ]);
@@ -425,7 +404,7 @@ class _UsersDataSource extends DataTableSource {
                                   itemCount: usersList.length,
                                   itemBuilder: (BuildContext context, int index) {
                                     final user = usersList[index];
-                                    if(user['room'] == 0) {
+                                    if(user['room'] == "0") {
                                       return Card(
                                         elevation: 2,
                                         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -452,7 +431,7 @@ class _UsersDataSource extends DataTableSource {
                                               context: context,
                                               builder: (BuildContext context) {
                                                 return AlertDialog(
-                                                  title: Text('Allow this user to join $name?'),
+                                                  title: Text('Allow this user to join session $name?'),
                                                   content: Form(
                                                       key: _formKey,
                                                       child: SingleChildScrollView(
@@ -500,14 +479,18 @@ class _UsersDataSource extends DataTableSource {
                                                     TextButton(
                                                       onPressed: () async {
                                                         if (_formKey.currentState!.validate()) {
-                                                          String? eventId = await findEventBySession(sessionId);
-                                                          List<String> events = user['events'] ?? [];
-                                                          events.add(eventId.toString());
-                                                          updateUser(user['userId'], events, [name], room.text, true, true);
-                                                          bool userExist = await checkUserInSessions(user['userId']);
-                                                          if (userExist) {
-                                                            updateSessionUser(name, user['userId'], room.text);
+                                                          String? eventId = await findEventBySessionId(sessionId);
+                                                          List<String> events = List<String>.from(user['events'] ?? []);
+                                                          events.add(eventId!);
+
+                                                          updateUser(user['epicGamesId'], events, [sessionId], room.text, true, user['isAuthorized']);
+                                                          if (user['role'] == 'Talent') {
+                                                            slotTal--;
+                                                          } else {
+                                                            slotEnt--;
                                                           }
+                                                          updateSession(name, slotTal, slotEnt, isActive, users, true);
+
                                                           Navigator.of(context).pop();
 
                                                           const snackBar = SnackBar(
@@ -515,12 +498,10 @@ class _UsersDataSource extends DataTableSource {
                                                           );
                                                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-                                                          Map<String, dynamic>? userData = await getUserData(user['userId']);
-
                                                           sendEmail(
-                                                              toEmail: userData?['email'],
-                                                              toName: user['userId'],
-                                                              subject: 'New experience',
+                                                              toEmail: user['email'],
+                                                              toName: user['name'],
+                                                              subject: 'Room N°${room.text}',
                                                               htmlContent: htmlSecondContent
                                                           );
                                                         }
@@ -529,12 +510,7 @@ class _UsersDataSource extends DataTableSource {
                                                     ),
                                                     TextButton(
                                                       onPressed: () {
-                                                        if (user['role'] == 'Talent') {
-                                                          slotTal++;
-                                                        } else {
-                                                          slotEnt++;
-                                                        }
-                                                        deleteUserFromSession(name, user['userId'], slotTal, slotEnt);
+                                                        deleteUserFromSession(name, user['_id']);
                                                         Navigator.of(context).pop();
                                                         const snackBar = SnackBar(
                                                           content: Text('The user has been rejected'),
@@ -579,7 +555,7 @@ class _UsersDataSource extends DataTableSource {
                                   itemBuilder: (BuildContext context, int index) {
                                     final user = usersList[index];
                                     if (selectedRoleFilter == 'All' || user['role'] == selectedRoleFilter) {
-                                      if(user['room'] != 0) {
+                                      if(user['room'] != "0") {
                                         return Card(
                                           elevation: 2,
                                           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -622,19 +598,25 @@ class _UsersDataSource extends DataTableSource {
                                                                 child: TextFormField(
                                                                   controller: room,
                                                                   keyboardType: TextInputType.number,
-                                                                  validator: (value) {
-
-                                                                    RegExp numberPattern = RegExp(r'^[1-9]|1[0-2]$');
-
-                                                                    if (value!.isEmpty) {
-                                                                      return "Please enter a number";
-                                                                    }
-
-                                                                    if (!numberPattern.hasMatch(value)) {
-                                                                      return 'Please enter a number between 1 and 12';
-                                                                    }
-                                                                    return null;
-                                                                  },
+                                                                  decoration: const InputDecoration(
+                                                                    prefixIcon: Padding(
+                                                                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                                                      child: Icon(Icons.numbers),
+                                                                    ),
+                                                                    errorStyle: TextStyle(
+                                                                      color: chartColor2,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const Text(
+                                                                "New Session ID",
+                                                                style: TextStyle(color: Colors.black54),
+                                                              ),
+                                                              Padding(
+                                                                padding: const EdgeInsets.only(top: 8.0, bottom: 16),
+                                                                child: TextFormField(
+                                                                  controller: newSessionId,
                                                                   decoration: const InputDecoration(
                                                                     prefixIcon: Padding(
                                                                       padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -655,14 +637,31 @@ class _UsersDataSource extends DataTableSource {
                                                         onPressed: () async {
                                                           if (_formKey.currentState!.validate()) {
 
-                                                            String? eventId = await findEventBySession(sessionId);
-                                                            List<String> events = user['events'] ?? [];
-                                                            events.add(eventId.toString());
-                                                            updateUser(user['userId'], events, [name], room.text, true, true);
-                                                            bool userExist = await checkUserInSessions(user['userId']);
-                                                            if (userExist) {
-                                                              updateSessionUser(name, user['userId'], room.text);
+                                                            List<String> events = (user['events'] as List<dynamic>).cast<String>();
+                                                            List<String> sessions = (user['sessions'] as List<dynamic>).cast<String>();
+
+                                                            if (room.text.isNotEmpty) {
+                                                              updateUser(user['epicGamesId'], events, sessions, room.text, true, user['isAuthorized']);
                                                             }
+
+                                                            if (newSessionId.text.isNotEmpty) {
+                                                              Map<String, dynamic> newSessionData = await getSessionById(newSessionId.text);
+                                                              moveUserToAnotherSession(sessionId, newSessionId.text, user['_id']);
+                                                              int newSessionSlotTal = newSessionData['slotTal'];
+                                                              int newSessionSlotEnt = newSessionData['slotEnt'];
+
+                                                              if (user['role'] == 'Talent') {
+                                                                slotTal++;
+                                                                newSessionSlotTal--;
+                                                              }
+                                                              else {
+                                                                slotEnt++;
+                                                                newSessionSlotEnt--;
+                                                              }
+                                                              updateSession(name, slotTal, slotEnt, isActive, users, false);
+                                                              updateSession(newSessionData['name'], newSessionSlotTal, newSessionSlotEnt, newSessionData['isActive'], newSessionData['users'], false);
+                                                            }
+
                                                             Navigator.of(context).pop();
 
                                                             const snackBar = SnackBar(
@@ -675,13 +674,16 @@ class _UsersDataSource extends DataTableSource {
                                                       ),
                                                       TextButton(
                                                         onPressed: () {
+
                                                           if (user['role'] == 'Talent') {
                                                             slotTal++;
                                                           } else {
                                                             slotEnt++;
                                                           }
-                                                          updateUser(user['userId'], user['events'], [user['sessions']], "0", false, true);
-                                                          deleteUserFromSession(name, user['userId'], slotTal, slotEnt);
+                                                          updateUser(user['epicGamesId'], [], [], "0", false, true);
+                                                          deleteUserFromSession(name, user['_id']);
+                                                          updateSession(name, slotTal, slotEnt, isActive, users, true);
+
                                                           Navigator.of(context).pop();
                                                           const snackBar = SnackBar(
                                                             content: Text('The user has been deleted'),

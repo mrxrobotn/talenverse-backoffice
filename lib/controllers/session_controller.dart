@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:Netinfo_Metaverse/controllers/event_controller.dart';
+import 'package:Netinfo_Metaverse/controllers/user_controller.dart';
 import 'package:http/http.dart' as http;
 import '../constants.dart';
 import '../models/session.dart';
@@ -104,14 +106,13 @@ Future<void> createSession(String name, int slotTal, int slotEnt, bool isActive,
 }
 
 Future<void> addUserToSession(String sessionName, String userId) async {
-
   final response = await http.put(
     Uri.parse('$apiUrl/sessions/$sessionName/users'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: jsonEncode(<String, dynamic>{
-      '_id': userId,
+      'users': userId,
     }),
   );
 
@@ -120,26 +121,6 @@ Future<void> addUserToSession(String sessionName, String userId) async {
   } else {
     // Handle error
     print('Error adding user: ${response.statusCode}');
-    print(response.body);
-  }
-}
-
-Future<void> updateSessionUser(String sessionName, String userId, String room) async {
-  final response = await http.put(
-    Uri.parse('$apiUrl/sessions/$sessionName/users/$userId'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, dynamic>{
-      'room': room,
-    }),
-  );
-
-  if (response.statusCode == 200) {
-    print('Room updated successfully');
-  } else {
-    // Handle error
-    print('Error updating room: ${response.statusCode}');
     print(response.body);
   }
 }
@@ -162,7 +143,7 @@ Future<bool> checkUserInSessions(String userId) async {
         final List<dynamic> users = sessionData['users'];
 
         // Check if the user exists in the current session
-        if (users.any((user) => user['userId'] == userId)) {
+        if (users.contains(userId)) {
           return true;
         }
       } else {
@@ -181,54 +162,65 @@ Future<bool> checkUserInSessions(String userId) async {
   }
 }
 
-Future<void> deleteUserFromSession(String sessionName, String userId, int slotTal, int slotEnt) async {
+Future<void> deleteUserFromSession(String sessionName, String userId) async {
   try {
-    // Fetch session details
-    final sessionResponse = await http.get(Uri.parse('$apiUrl/sessions/$sessionName'));
+    final response = await http.delete(
+      Uri.parse('$apiUrl/sessions/$sessionName/users'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'users': userId,
+      }),
+    );
 
-    if (sessionResponse.statusCode == 200) {
-      final Map<String, dynamic> sessionData = jsonDecode(sessionResponse.body);
-
-      // Retrieve the users array
-      List<dynamic> users = List<String>.from(sessionData['users']);
-
-      // Remove the user with the specified userId
-      users.removeWhere((user) => user['_id'] == userId);
-
-      // Update the session with the modified users array
-      await updateSession(
-        sessionName,
-        slotTal,
-        slotEnt,
-        sessionData['isActive'],
-        users,
-        true
-      );
+    if (response.statusCode == 200) {
+      // User deleted successfully
+      print('User deleted successfully');
+    } else if (response.statusCode == 404) {
+      // User not found in the session
+      print('User not found in the session');
     } else {
-      // Handle error for fetching session details
-      print('Error fetching session details: ${sessionResponse.statusCode}');
-      print(sessionResponse.body);
+      // Handle other status codes
+      print('Error: ${response.statusCode}');
     }
-  } catch (e) {
-    // Handle other exceptions
-    print('Exception: $e');
+  } catch (error) {
+    // Handle network or server errors
+    print('Error: $error');
   }
 }
 
-Future<List<dynamic>> getUsersInSession(String sessionName) async {
+Future<List<String>> getUsersInSession(String sessionName) async {
   final sessionResponse = await http.get(Uri.parse('$apiUrl/sessions/$sessionName'));
 
   if (sessionResponse.statusCode == 200) {
     final sessionData = jsonDecode(sessionResponse.body);
+
+    // Extract the "users" array from the sessionData
     final List<dynamic> users = sessionData['users'];
 
-    return users;
+    // Convert the list of users to a list of user ObjectIds (assuming they are strings)
+    final List<String> userObjectIds = List<String>.from(users);
+
+    return userObjectIds;
   } else {
     // Handle error
     print('Error fetching session: ${sessionResponse.statusCode}');
     print(sessionResponse.body);
     return [];
   }
+}
+
+Future<List<Map<String, dynamic>>> getUsersDataInSession(String sessionName) async {
+  final userObjectIds = await getUsersInSession(sessionName);
+
+  List<Map<String, dynamic>> usersData = [];
+  for (String userObjectId in userObjectIds) {
+    final userData = await getUserById(userObjectId);
+    if (userData != null) {
+      usersData.add(userData);
+    }
+  }
+
+  return usersData;
 }
 
 Future<void> deleteSession(String name) async {
@@ -268,5 +260,57 @@ Future<void> updateSlots(String name, int slotTal, int slotEnt) async {
     print('Slots updated successfully');
   } else {
     throw Exception('Failed to update Slots');
+  }
+}
+
+Future<void> moveUserToAnotherSession(String sessionId, String destinationSessionId, String userId) async {
+
+  try {
+    final response = await http.put(
+      Uri.parse('$apiUrl/sessions/id/$sessionId/users/$userId'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'name': destinationSessionId,
+      }),
+    );
+
+
+    if (response.statusCode == 200) {
+      print('User $userId moved from session $sessionId to $destinationSessionId');
+
+      // Update the user model after successful move
+      await updateUserAfterMove(destinationSessionId, userId);
+    } else {
+      print('Error moving user: ${response.statusCode}');
+      // Handle error response
+    }
+  } catch (error) {
+    print('Error moving user: $error');
+    // Handle network error
+  }
+}
+
+Future<void> updateUserAfterMove(String destinationSessionId, String userId) async {
+
+  try {
+    // Retrieve the user's current data
+    final getUserResponse = await http.get(Uri.parse('$apiUrl/users/id/$userId'));
+    if (getUserResponse.statusCode == 200) {
+      final userData = jsonDecode(getUserResponse.body);
+      String eventId = await findEventBySessionId(destinationSessionId);
+
+      // Extract the necessary data for update
+      final events = [eventId];
+      final sessions = [destinationSessionId];
+
+      // Make the update user request
+      await updateUser(userData['epicGamesId'], events, sessions, userData['room'], userData['canAccess'], userData['isAuthorized']);
+    } else {
+      print('Error getting user data: ${getUserResponse.statusCode}');
+      // Handle error response
+    }
+  } catch (error) {
+    print('Error updating user: $error');
+    // Handle network error
   }
 }

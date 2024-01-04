@@ -53,6 +53,7 @@ class _NewEventFormState extends State<NewEventForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController name = TextEditingController();
   TextEditingController date = TextEditingController();
+
   List<String> sessions = [];
   int slotTal = 12;
   int slotEnt = 8;
@@ -100,6 +101,24 @@ class _NewEventFormState extends State<NewEventForm> {
     });
   }
 
+  DateTime selectedDate = DateTime.now();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+        date.text = "${picked.day}-${picked.month}-${picked.year}";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -139,35 +158,26 @@ class _NewEventFormState extends State<NewEventForm> {
                     "Date*",
                     style: TextStyle(color: Colors.black54),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 16),
-                    child: TextFormField(
-                      controller: date,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "Please enter a date";
-                        }
-
-                        // Define a regular expression for the desired date format (mm-dd-yyyy)
-                        RegExp dateRegex = RegExp(r'^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])-\d{4}$');
-
-                        if (!dateRegex.hasMatch(value)) {
-                          return "Please enter a valid date format (mm-dd-yyyy)";
-                        }
-
-                        return null;
-                      },
-                      decoration: const InputDecoration(
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Icon(Icons.date_range),
-                        ),
-                        errorStyle: TextStyle(
-                          color: chartColor2,
-                        ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      Text(
+                        '${selectedDate.day}-${selectedDate.month}-${selectedDate.year}',
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-                    ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: () {
+                          _selectDate(context);
+                        },
+                        child: const Text('Select Date'),
+                      ),
+                    ],
                   ),
+                ),
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 24),
                     child: ElevatedButton.icon(

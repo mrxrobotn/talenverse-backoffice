@@ -52,6 +52,16 @@ Future<Map<String, dynamic>?> getUserData(String epicGamesId) async {
   }
 }
 
+Future<Map<String, dynamic>?> getUserById(String id) async {
+  final response = await http.get(Uri.parse('$apiUrl/users/id/$id'));
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    throw Exception('Failed to get user data');
+  }
+}
+
 Future<List<User>> fetchUsers() async {
   final response = await http.get(Uri.parse('$apiUrl/users'));
 
@@ -102,5 +112,34 @@ Future<void> updateUserRole(String epicGamesId, String role) async {
   } else {
     print('Failed to update user: ${response.statusCode}');
     throw Exception('Failed to update user');
+  }
+}
+
+Future<void> deleteSessionAndEventFromUser(String userId, String event, String session) async {
+  final String apiUrl = 'YOUR_SERVER_API_ENDPOINT/users/$userId'; // Replace with your actual API endpoint
+
+  final Map<String, String> headers = {'Content-Type': 'application/json'};
+
+  final Map<String, dynamic> requestBody = {
+    'events': [event],
+    'sessions': [session],
+  };
+
+  try {
+    final response = await http.delete(
+      Uri.parse('$apiUrl/users/id/$userId'),
+      headers: headers,
+      body: jsonEncode(requestBody),
+    );
+
+    if (response.statusCode == 200) {
+      print('Session & Event deleted successfully');
+    } else if (response.statusCode == 404) {
+      print('User not found');
+    } else {
+      print('Internal Server Error');
+    }
+  } catch (error) {
+    print('Error: $error');
   }
 }

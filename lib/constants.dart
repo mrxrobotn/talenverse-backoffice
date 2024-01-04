@@ -9,6 +9,7 @@ const Color shadowColorDark = Colors.black;
 const Color cardColor = Colors.green;
 
 const String apiUrl = 'http://localhost:3000/api/v1';
+//const String apiUrl = 'https://nm-api-nfcyw7o2xa-ew.a.run.app/api/v1';
 
 List<String> roles = ['Admin', 'Staff', 'Entrepreneur', 'Talent', 'Visitor'];
 
@@ -41,7 +42,7 @@ const String htmlFirstContent = '''
         <body>
           <p>Hello ,</p>
           <p>Thank you for your request. To complete your registration, please click the following link:</p>
-          <a href="http://localhost:53524/#/sessions">Complete Registration</a>
+          <a href="https://talentverse-8aa4e.firebaseapp.com/#/sessions">Complete Registration</a>
           <p>If you have any questions, feel free to contact us.</p>
         </body>
       </html>
@@ -53,8 +54,8 @@ const String htmlSecondContent = '''
         <body>
           <p>Hello ,</p>
           <p>Thank you for your request. You are now accepted to be a part in the TalentVerse space</p>
-          <p>Please follow this link to check what room are you in.</p>
-          <a href="http://localhost:53524/#/sessions">Visit link</a>
+          <p>Please follow this link if you forget your room number.</p>
+          <a href="https://talentverse-8aa4e.firebaseapp.com/#/sessions">Visit link</a>
           <p>If you have any questions, feel free to contact us.</p>
         </body>
       </html>
