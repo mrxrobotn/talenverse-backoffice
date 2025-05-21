@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../constants.dart';
+import '../private_credentials.dart';
 
 Future<bool> validateCredentials(String email, String password) async {
   final response = await http.get(
-      Uri.parse('$apiUrl/admins')
+      Uri.parse('$SERVER_API_URL/admins')
   );
 
   if (response.statusCode == 200) {

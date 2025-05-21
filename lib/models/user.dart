@@ -28,14 +28,19 @@ class User {
       email: json['email'],
       events: (json['events'] as List<dynamic>?)
           ?.map((event) => event.toString())
-          .toList() ?? [],
+          .toList() ??
+          [],
       sessions: (json['sessions'] as List<dynamic>?)
-          ?.map((event) => event.toString())
-          .toList() ?? [],
-      room: json['room'],
+          ?.map((session) => session.toString())
+          .toList() ??
+          [],
+      room: json['room'] is Map && json['room'] != null
+          ? json['room']['\$oid'] ?? ''
+          : json['room']?.toString() ?? '',
       canAccess: json['canAccess'],
       isAuthorized: json['isAuthorized'],
       role: json['role'],
     );
   }
+
 }

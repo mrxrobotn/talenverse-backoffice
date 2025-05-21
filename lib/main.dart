@@ -1,5 +1,6 @@
 import 'package:Netinfo_Metaverse/views/admin/components/admin_provider.dart';
 import 'package:Netinfo_Metaverse/views/admin/components/sessions_page.dart';
+import 'package:Netinfo_Metaverse/views/home_screen2.dart';
 import 'package:Netinfo_Metaverse/views/user/request_session_page.dart';
 import 'package:provider/provider.dart';
 import 'views/admin/admin_dashboard.dart';
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
       title: 'TalentVerse',
       initialRoute: '/home',
       routes: {
-        '/home': (context) => const HomeScreen(),
+        '/home': (context) => const HomeScreen2(),
         '/login': (context) => const AdminPage(),
         '/dashboard': (context) => Consumer<AdminProvider>(
           builder: (context, userProvider, _) {
@@ -50,7 +51,7 @@ class MyApp extends StatelessWidget {
           errorBorder: defaultInputBorder,
         ),
       ),
-      home:  const HomeScreen(),
+      home:  const HomeScreen2(),
     );
   }
 }

@@ -8,9 +8,6 @@ const Color shadowColorLight = Color(0xFF4A5367);
 const Color shadowColorDark = Colors.black;
 const Color cardColor = Colors.green;
 
-const String apiUrl = 'http://localhost:3000/api/v1';
-//const String apiUrl = 'https://nm-api-nfcyw7o2xa-ew.a.run.app/api/v1';
-
 List<String> roles = ['Admin', 'Staff', 'Entrepreneur', 'Talent', 'Visitor'];
 
 class CustomPositioned extends StatelessWidget {
@@ -37,13 +34,27 @@ class CustomPositioned extends StatelessWidget {
 }
 
 const String htmlFirstContent = '''
-      <html>
-        <head></head>
+      <html lang="en-EN">
+        <head>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+            }
+            a {
+              color: #007bff;
+              text-decoration: none;
+            }
+          </style>
+        </head>
         <body>
-          <p>Hello ,</p>
-          <p>Thank you for your request. To complete your registration, please click the following link:</p>
-          <a href="https://talentverse-8aa4e.firebaseapp.com/#/sessions">Complete Registration</a>
-          <p>If you have any questions, feel free to contact us.</p>
+          <p>Hi,</p>
+          <p>Thank you for registering with Talent Verse! We're excited to have you participate in our internal test.</p>
+          <p>To begin your Talent Verse experience, please download our platform (Windows only) using the link below:</p>
+          <p><a href="https://drive.google.com/drive/folders/1uIkAnlKHBdS1XdjNqeCIthOJRQ-KRL-2" download>Download Talent Verse</a></p>
+          <p>If you have any questions or need assistance, feel free to contact us at production@dall4all.org.</p>
+          <p>Best regards,<br/>Talent Verse Team</p>
         </body>
       </html>
     ''';
@@ -56,6 +67,17 @@ const String htmlSecondContent = '''
           <p>Thank you for your request. You are now accepted to be a part in the TalentVerse space</p>
           <p>Please follow this link if you forget your room number.</p>
           <a href="https://talentverse-8aa4e.firebaseapp.com/#/sessions">Visit link</a>
+          <p>If you have any questions, feel free to contact us.</p>
+        </body>
+      </html>
+    ''';
+
+const String htmlThirdContent = '''
+      <html>
+        <head></head>
+        <body>
+          <p>Hello ,</p>
+          <p>Thank you for your request. You are now accepted to be a part in the TalentVerse space</p>
           <p>If you have any questions, feel free to contact us.</p>
         </body>
       </html>

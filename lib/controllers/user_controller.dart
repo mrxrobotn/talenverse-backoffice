@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../constants.dart';
+import '../private_credentials.dart';
 import '../models/user.dart';
 
 Future<void> createUser(String epicGamesId, String name, String email, List<String> events, List<String> sessions, String room, bool canAccess,bool isAuthorized, String role) async {
 
   final response = await http.post(
-    Uri.parse('$apiUrl/users'),
+    Uri.parse('$SERVER_API_URL/users'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -33,7 +33,7 @@ Future<void> createUser(String epicGamesId, String name, String email, List<Stri
 }
 
 Future<bool> checkUser(String epicGamesId) async {
-  final response = await http.get(Uri.parse('$apiUrl/users/$epicGamesId'));
+  final response = await http.get(Uri.parse('$SERVER_API_URL/users/$epicGamesId'));
 
   if (response.statusCode == 200) {
     return true;
@@ -43,7 +43,7 @@ Future<bool> checkUser(String epicGamesId) async {
 }
 
 Future<Map<String, dynamic>?> getUserData(String epicGamesId) async {
-  final response = await http.get(Uri.parse('$apiUrl/users/$epicGamesId'));
+  final response = await http.get(Uri.parse('$SERVER_API_URL/users/$epicGamesId'));
 
   if (response.statusCode == 200) {
     return jsonDecode(response.body);
@@ -53,7 +53,7 @@ Future<Map<String, dynamic>?> getUserData(String epicGamesId) async {
 }
 
 Future<Map<String, dynamic>?> getUserById(String id) async {
-  final response = await http.get(Uri.parse('$apiUrl/users/id/$id'));
+  final response = await http.get(Uri.parse('$SERVER_API_URL/users/id/$id'));
 
   if (response.statusCode == 200) {
     return jsonDecode(response.body);
@@ -63,7 +63,7 @@ Future<Map<String, dynamic>?> getUserById(String id) async {
 }
 
 Future<List<User>> fetchUsers() async {
-  final response = await http.get(Uri.parse('$apiUrl/users'));
+  final response = await http.get(Uri.parse('$SERVER_API_URL/users'));
 
   if (response.statusCode == 200) {
     List<dynamic> jsonResponse = json.decode(response.body);
@@ -75,7 +75,7 @@ Future<List<User>> fetchUsers() async {
 
 Future<void> updateUser(String epicGamesId, List<String> events, List<String> sessions, String room, bool canAccess, bool isAuthorized) async {
   final response = await http.put(
-    Uri.parse('$apiUrl/users/$epicGamesId'),
+    Uri.parse('$SERVER_API_URL/users/$epicGamesId'),
     headers: {
       'Content-Type': 'application/json',
     },
@@ -98,7 +98,7 @@ Future<void> updateUser(String epicGamesId, List<String> events, List<String> se
 
 Future<void> updateUserRole(String epicGamesId, String role) async {
   final response = await http.patch(
-    Uri.parse('$apiUrl/users/$epicGamesId'),
+    Uri.parse('$SERVER_API_URL/users/$epicGamesId'),
     headers: {
       'Content-Type': 'application/json',
     },

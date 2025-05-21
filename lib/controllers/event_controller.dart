@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../constants.dart';
+import '../private_credentials.dart';
 import '../../../models/event.dart';
 
 Future<void> createEvent(String name, String date, List<String> sessions) async {
 
   final response = await http.post(
-    Uri.parse('$apiUrl/events'),
+    Uri.parse('$SERVER_API_URL/events'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -28,7 +28,7 @@ Future<void> createEvent(String name, String date, List<String> sessions) async 
 
 Future<List<Event>> fetchEvents() async {
   try {
-    final response = await http.get(Uri.parse('$apiUrl/events'));
+    final response = await http.get(Uri.parse('$SERVER_API_URL/events'));
 
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -44,7 +44,7 @@ Future<List<Event>> fetchEvents() async {
 }
 
 Future<String> findEventBySessionId(String sessionId) async {
-  final response = await http.get(Uri.parse('$apiUrl/events/sessions?sessionId=$sessionId'));
+  final response = await http.get(Uri.parse('$SERVER_API_URL/events/sessions?sessionId=$sessionId'));
 
   if (response.statusCode == 200) {
     // If server returns an OK response, parse the JSON
@@ -57,5 +57,15 @@ Future<String> findEventBySessionId(String sessionId) async {
     // If the server did not return a 200 OK or 404 Not Found response,
     // throw an exception.
     throw Exception('Failed to find event by session');
+  }
+}
+
+Future<Map<String, dynamic>?> getEventDataById(String id) async {
+  final response = await http.get(Uri.parse('$SERVER_API_URL/events/id/$id'));
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    throw Exception('Failed to get event data');
   }
 }

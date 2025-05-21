@@ -59,7 +59,6 @@ class _SessionsListState extends State<SessionsList> {
   Event? selectedEvent;
   Session? selectedSession;
 
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -145,13 +144,17 @@ class _SessionsListState extends State<SessionsList> {
                                 itemBuilder: (context, index) {
                                   final session = sessionsForSelectedEvent[index];
                                   bool isSelected = selectedSession == session;
+
+                                  String myString = session.name;
+                                  String lastCharacter = myString.isNotEmpty ? myString.substring(myString.length - 1) : "";
+
                                   return Card(
                                     elevation: 3,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12.0),
                                     ),
                                     child: ListTile(
-                                      title: Text(session.name),
+                                      title: Text("Session $lastCharacter"),
                                       onTap: () {
                                         setState(() {
                                           if (widget.role == "Talent") {

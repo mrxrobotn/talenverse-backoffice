@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 import '../../components/animated_btn.dart';
 import '../../constants.dart';
-import '../../controllers/mailer_api.dart';
 import '../../controllers/user_controller.dart';
 import 'components/sessions_list.dart';
 

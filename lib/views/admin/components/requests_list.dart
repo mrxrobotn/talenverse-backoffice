@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:Netinfo_Metaverse/constants.dart';
 import 'package:Netinfo_Metaverse/views/admin/components/stats_card.dart';
 import 'package:flutter/material.dart';
-import '../../../controllers/mailer_api.dart';
+import '../../../controllers/mailer_controller.dart';
+import '../../../controllers/session_controller.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../models/user.dart';
 import '../../../responsive_layout.dart';
@@ -107,10 +108,8 @@ class _RequestsListState extends State<RequestsList> {
                   return const Center(child: Text('No users found.'));
                 }
                 return ResponsiveLayout(
-                  tiny: _buildListView(snapshot.data!),
                   phone: _buildListView(snapshot.data!),
                   tablet: _buildListView(snapshot.data!),
-                  largeTablet: _buildDataTable(snapshot.data!),
                   computer: _buildDataTable(snapshot.data!),
                 );
               },
@@ -262,14 +261,15 @@ class _RequestsListState extends State<RequestsList> {
                                 TextButton(
                                   child: const Text('Yes'),
                                   onPressed: () {
-                                    sendEmail(
+                                    /*sendEmail(
                                       toName: user.name,
                                       toEmail: user.email,
-                                      subject: 'Session Request',
+                                      subject: 'Welcome to Talent Verse!',
                                       htmlContent: htmlFirstContent,
-                                    );
-                                    updateUser(user.epicGamesId, user.events, user.sessions, user.room, !user.canAccess, !user.isAuthorized);
+                                    );*/
+                                    updateUser(user.epicGamesId, user.events, user.sessions, user.room, true, !user.isAuthorized);
                                     Navigator.of(context).pop();
+
                                     const snackBar = SnackBar(
                                       content: Text(
                                           'Authorization has been given with success'),
@@ -345,20 +345,30 @@ class _UsersDataSource extends DataTableSource {
                   actions: <Widget>[
                     TextButton(
                       child: const Text('Yes'),
-                      onPressed: () {
-                        sendEmail(
+                      onPressed: () async {
+                        /*sendEmail(
                           toName: user.name,
                           toEmail: user.email,
-                          subject: 'Session Request',
+                          subject: 'Welcome to Talent Verse!',
                           htmlContent: htmlFirstContent,
-                        );
-                        updateUser(user.epicGamesId, user.events, user.sessions, user.room, user.canAccess, !user.isAuthorized);
+                        );*/
                         Navigator.of(context).pop();
                         const snackBar = SnackBar(
                           content:
                               Text('Authorization has been given with success'),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        final userData = await getUserData(user.epicGamesId);
+                        print('EpicGamesID: ${user.epicGamesId}');
+                        print('UserID: ${userData?['_id']}');
+                        bool userExists = await checkUserInSessions(userData?['_id']);
+                        if (!userExists) {
+                          Future.delayed(const Duration(seconds: 1), () async {
+                            addUserToSession('2-7-2024_1', userData?['_id']);
+                            Navigator.of(context).pop();
+                          });
+                        }
+                        updateUser(user.epicGamesId, user.events, ['65b8ec1c230dcc92f073cf65'], user.room, true, !user.isAuthorized);
                       },
                     ),
                     TextButton(

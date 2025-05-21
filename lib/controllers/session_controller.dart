@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'package:Netinfo_Metaverse/controllers/event_controller.dart';
 import 'package:Netinfo_Metaverse/controllers/user_controller.dart';
 import 'package:http/http.dart' as http;
-import '../constants.dart';
+import '../private_credentials.dart';
 import '../models/session.dart';
 
 Future<List<Session>> fetchSessions() async {
-  final response = await http.get(Uri.parse('$apiUrl/sessions'));
+  final response = await http.get(Uri.parse('$SERVER_API_URL/sessions'));
 
   if (response.statusCode == 200) {
     List<dynamic> jsonResponse = json.decode(response.body);
@@ -17,7 +17,7 @@ Future<List<Session>> fetchSessions() async {
 }
 
 Future<Map<String, dynamic>> getSessionById(String sessionId) async {
-  final response = await http.get(Uri.parse('$apiUrl/sessions/id/$sessionId'));
+  final response = await http.get(Uri.parse('$SERVER_API_URL/sessions/id/$sessionId'));
 
   if (response.statusCode == 200) {
     return json.decode(response.body);
@@ -28,7 +28,7 @@ Future<Map<String, dynamic>> getSessionById(String sessionId) async {
 }
 
 Future<String?> fetchSessionIdByName(String name) async {
-  final response = await http.get(Uri.parse('$apiUrl/sessions/$name'));
+  final response = await http.get(Uri.parse('$SERVER_API_URL/sessions/$name'));
 
   if (response.statusCode == 200) {
     Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -39,7 +39,7 @@ Future<String?> fetchSessionIdByName(String name) async {
 }
 
 Future<List<Session>> fetchActiveSessions() async {
-  final response = await http.get(Uri.parse('$apiUrl/sessions'));
+  final response = await http.get(Uri.parse('$SERVER_API_URL/sessions'));
 
   if (response.statusCode == 200) {
     List<dynamic> jsonResponse = json.decode(response.body);
@@ -64,7 +64,7 @@ Future<void> updateSession(String name, int slotTal, int slotEnt, bool isActive,
   }
 
   final response = await http.put(
-    Uri.parse('$apiUrl/sessions/$name'),
+    Uri.parse('$SERVER_API_URL/sessions/$name'),
     headers: {
       'Content-Type': 'application/json',
     },
@@ -82,7 +82,7 @@ Future<void> updateSession(String name, int slotTal, int slotEnt, bool isActive,
 Future<void> createSession(String name, int slotTal, int slotEnt, bool isActive, List<String> users, List<Map<String, dynamic>> votes) async {
 
   final response = await http.post(
-    Uri.parse('$apiUrl/sessions'),
+    Uri.parse('$SERVER_API_URL/sessions'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -107,7 +107,7 @@ Future<void> createSession(String name, int slotTal, int slotEnt, bool isActive,
 
 Future<void> addUserToSession(String sessionName, String userId) async {
   final response = await http.put(
-    Uri.parse('$apiUrl/sessions/$sessionName/users'),
+    Uri.parse('$SERVER_API_URL/sessions/$sessionName/users'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -136,7 +136,7 @@ Future<bool> checkUserInSessions(String userId) async {
 
       // Fetch session details
       final sessionResponse =
-      await http.get(Uri.parse('$apiUrl/sessions/$sessionName'));
+      await http.get(Uri.parse('$SERVER_API_URL/sessions/$sessionName'));
 
       if (sessionResponse.statusCode == 200) {
         final sessionData = jsonDecode(sessionResponse.body);
@@ -165,7 +165,7 @@ Future<bool> checkUserInSessions(String userId) async {
 Future<void> deleteUserFromSession(String sessionName, String userId) async {
   try {
     final response = await http.delete(
-      Uri.parse('$apiUrl/sessions/$sessionName/users'),
+      Uri.parse('$SERVER_API_URL/sessions/$sessionName/users'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'users': userId,
@@ -189,7 +189,7 @@ Future<void> deleteUserFromSession(String sessionName, String userId) async {
 }
 
 Future<List<String>> getUsersInSession(String sessionName) async {
-  final sessionResponse = await http.get(Uri.parse('$apiUrl/sessions/$sessionName'));
+  final sessionResponse = await http.get(Uri.parse('$SERVER_API_URL/sessions/$sessionName'));
 
   if (sessionResponse.statusCode == 200) {
     final sessionData = jsonDecode(sessionResponse.body);
@@ -227,7 +227,7 @@ Future<void> deleteSession(String name) async {
 
   try {
     final response = await http.delete(
-      Uri.parse('$apiUrl/sessions/$name'),
+      Uri.parse('$SERVER_API_URL/sessions/$name'),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -246,7 +246,7 @@ Future<void> deleteSession(String name) async {
 
 Future<void> updateSlots(String name, int slotTal, int slotEnt) async {
   final response = await http.patch(
-    Uri.parse('$apiUrl/sessions/$name'),
+    Uri.parse('$SERVER_API_URL/sessions/$name'),
     headers: {
       'Content-Type': 'application/json',
     },
@@ -267,7 +267,7 @@ Future<void> moveUserToAnotherSession(String sessionId, String destinationSessio
 
   try {
     final response = await http.put(
-      Uri.parse('$apiUrl/sessions/id/$sessionId/users/$userId'),
+      Uri.parse('$SERVER_API_URL/sessions/id/$sessionId/users/$userId'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'name': destinationSessionId,
@@ -294,7 +294,7 @@ Future<void> updateUserAfterMove(String destinationSessionId, String userId) asy
 
   try {
     // Retrieve the user's current data
-    final getUserResponse = await http.get(Uri.parse('$apiUrl/users/id/$userId'));
+    final getUserResponse = await http.get(Uri.parse('$SERVER_API_URL/users/id/$userId'));
     if (getUserResponse.statusCode == 200) {
       final userData = jsonDecode(getUserResponse.body);
       String eventId = await findEventBySessionId(destinationSessionId);
@@ -313,4 +313,38 @@ Future<void> updateUserAfterMove(String destinationSessionId, String userId) asy
     print('Error updating user: $error');
     // Handle network error
   }
+}
+
+Future<List<Map<String, dynamic>>> getTalentsWithMarksInSession(String sessionId) async {
+  final sessionData = await getSessionById(sessionId);
+  final userObjectIds = List<String>.from(sessionData['users']);
+  final List<Map<String, dynamic>> talentsWithMarks = [];
+
+  print('Session Data: $sessionData');
+
+  for (String userObjectId in userObjectIds) {
+    final userData = await getUserById(userObjectId);
+    if (userData != null) {
+      final votes = sessionData['votes'].where(
+            (v) => v['voters'].first == userObjectId,
+      );
+
+      for (var vote in votes) {
+        print('Vote: $vote');
+        final talentId = vote['talent'][0]['\$oid']["_id"];
+        final mark = vote['mark'];
+
+        final Map<String, dynamic> talentWithMark = {
+          'talent': talentId,
+          'mark': mark,
+        };
+
+        talentsWithMarks.add(talentWithMark);
+      }
+    }
+  }
+
+  print('Talents With Marks: $talentsWithMarks');
+
+  return talentsWithMarks;
 }

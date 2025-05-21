@@ -107,10 +107,8 @@ class _UsersListState extends State<UsersList> {
                   );
                 }
                 return ResponsiveLayout(
-                  tiny: _buildMobileView(snapshot.data!),
                   phone: _buildMobileView(snapshot.data!),
                   tablet: _buildMobileView(snapshot.data!),
-                  largeTablet: _buildLaptopView(snapshot.data!),
                   computer: _buildLaptopView(snapshot.data!),
                 );
               },

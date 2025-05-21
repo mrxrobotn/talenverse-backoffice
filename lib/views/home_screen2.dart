@@ -1,20 +1,20 @@
 import 'dart:ui';
 import 'package:Netinfo_Metaverse/responsive_layout.dart';
 import 'package:Netinfo_Metaverse/views/user/mobile_request_dialog.dart';
-import 'package:Netinfo_Metaverse/views/user/request_screen.dart';
+import 'package:Netinfo_Metaverse/views/user/request_screen2.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../components/animated_btn.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomeScreen2 extends StatefulWidget {
+  const HomeScreen2({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen2> createState() => _HomeScreen2State();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreen2State extends State<HomeScreen2> {
   bool isSignInDialogShown = false;
   late RiveAnimationController _btnAnimationController;
   late RiveAnimationController _websiteAnimationController;
@@ -64,20 +64,27 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: 192, height: 192),
                         const SizedBox(
                           width: 300,
-                          child: Column(children: [
-                            Text(
-                              "Welcome To TalentVerse",
-                              style: TextStyle(
-                                  fontSize: 40,
-                                  fontFamily: "Poppins",
-                                  height: 1.2),
-                            ),
-                            SizedBox(
-                              height: 16,
-                            ),
-                            Text(
-                                "Where boundless creativity converges with unparalleled opportunity. Immerse yourself in a digital realm where visionary 3D artists showcase their extraordinary projects, each a testament to innovation and artistic brilliance. Navigate through a virtual world where talent knows no bounds.")
-                          ]),
+                          child: Column(
+                              children: [
+                                Text(
+                                  "Welcome To TalentVerse",
+                                  style: TextStyle(
+                                      fontSize: 40,
+                                      fontFamily: "Poppins",
+                                      height: 1.2),
+                                ),
+                                SizedBox(
+                                  height: 16,
+                                ),
+                                Text(
+                                    "Talent Verse is an innovative project that creates global virtual job opportunities for art students. "
+                                        "Tailored to the needs of concept artists, animators, 3D artists, and other creative professionals, this project envisions a dynamic virtual environment, where students can connect with companies in an immersive and interactive manner. "
+                                        "The project facilitates one-on-one interviews between companies and prospective students. "
+                                        "This interactive element ensures meaningful engagements, allowing companies to assess the skills and potential of art students while providing students with direct insights into career opportunities. "
+                                        "The overarching goal of Netinfo Metaverse is to make the evaluation of artists’ work open and accessible at all times."
+                                ),
+                              ]
+                          ),
                         ),
                         const Spacer(
                           flex: 2,
@@ -97,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               });
                             });
                           },
-                          label: 'Request Access',
+                          label: 'Download TalentVerse',
                         ),
                         const SizedBox(
                           height: 20,
@@ -131,20 +138,27 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: 192, height: 192),
                         const SizedBox(
                           width: 300,
-                          child: Column(children: [
-                            Text(
-                              "Welcome To TalentVerse",
-                              style: TextStyle(
-                                  fontSize: 60,
-                                  fontFamily: "Poppins",
-                                  height: 1.2),
+                          child: Column(
+                              children: [
+                                Text(
+                                  "Welcome To TalentVerse",
+                                  style: TextStyle(
+                                      fontSize: 60,
+                                      fontFamily: "Poppins",
+                                      height: 1.2),
+                                ),
+                                SizedBox(
+                                  height: 16,
+                                ),
+                                Text(
+                                    "Talent Verse is an innovative project that creates global virtual job opportunities for art students. "
+                                        "Tailored to the needs of concept artists, animators, 3D artists, and other creative professionals, this project envisions a dynamic virtual environment, where students can connect with companies in an immersive and interactive manner. "
+                                        "The project facilitates one-on-one interviews between companies and prospective students. "
+                                        "This interactive element ensures meaningful engagements, allowing companies to assess the skills and potential of art students while providing students with direct insights into career opportunities. "
+                                        "The overarching goal of Netinfo Metaverse is to make the evaluation of artists’ work open and accessible at all times."
+                                    ),
+                                ]
                             ),
-                            SizedBox(
-                              height: 16,
-                            ),
-                            Text(
-                                "Where boundless creativity converges with unparalleled opportunity. Immerse yourself in a digital realm where visionary 3D artists showcase their extraordinary projects, each a testament to innovation and artistic brilliance. Navigate through a virtual world where talent knows no bounds.")
-                          ]),
                         ),
                         const Spacer(
                           flex: 2,
@@ -202,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   children: [
                                     Image.asset('assets/Backgrounds/logo_metaverse.png', width: 192, height: 192),
                                     const SizedBox(
-                                      width: 300,
+                                      width: 600,
                                       child: Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
@@ -217,7 +231,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                             height: 16,
                                           ),
                                           Text(
-                                              "Where boundless creativity converges with unparalleled opportunity. Immerse yourself in a digital realm where visionary 3D artists showcase their extraordinary projects, each a testament to innovation and artistic brilliance. Navigate through a virtual world where talent knows no bounds."),
+                                              "Talent Verse is an innovative project that creates global virtual job opportunities for art students. "
+                                                  "Tailored to the needs of concept artists, animators, 3D artists, and other creative professionals, this project envisions a dynamic virtual environment, where students can connect with companies in an immersive and interactive manner. "
+                                                  "The project facilitates one-on-one interviews between companies and prospective students. "
+                                                  "This interactive element ensures meaningful engagements, allowing companies to assess the skills and potential of art students while providing students with direct insights into career opportunities. "
+                                                  "The overarching goal of Netinfo Metaverse is to make the evaluation of artists’ work open and accessible at all times."
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -244,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                                 const SizedBox(width: 200,),
-                                const RequestPage()
+                                const RequestPage2()
                               ],
                             ),
                           ),

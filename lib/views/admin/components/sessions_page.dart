@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:Netinfo_Metaverse/controllers/event_controller.dart';
-import 'package:Netinfo_Metaverse/controllers/mailer_api.dart';
+import 'package:Netinfo_Metaverse/controllers/mailer_controller.dart';
 import 'package:Netinfo_Metaverse/controllers/user_controller.dart';
 import 'package:Netinfo_Metaverse/models/session.dart';
 import 'package:flutter/material.dart';
-import 'package:rive/rive.dart';
 import '../../../constants.dart';
 import '../../../controllers/session_controller.dart';
+import '../../../models/event.dart';
 
 
 class SessionsPage extends StatefulWidget {
@@ -18,10 +18,6 @@ class SessionsPage extends StatefulWidget {
 
 class _SessionsPageState extends State<SessionsPage> {
 
-  bool isSignInDialogShown = false;
-
-  late RiveAnimationController _btnAnimationController;
-
   late StreamController<List<Session>> _sessionsController;
   late TextEditingController searchController;
   late List<Session> allSessions;
@@ -29,7 +25,6 @@ class _SessionsPageState extends State<SessionsPage> {
   @override
   void initState() {
     super.initState();
-    _btnAnimationController = OneShotAnimation("active", autoplay: false);
     _sessionsController = StreamController<List<Session>>.broadcast();
     searchController = TextEditingController();
     fetchSessions().then((sessions) {
@@ -192,7 +187,6 @@ class _SessionsPageState extends State<SessionsPage> {
       ),
     );
   }
-
 }
 
 class _UsersDataSource extends DataTableSource {
@@ -219,13 +213,26 @@ class _UsersDataSource extends DataTableSource {
       DataCell(Text('${session.slotTal.toString()} / 12')),
       DataCell(Text('${session.slotEnt.toString()} / 8')),
       DataCell(
-        TextButton(
-          onPressed: () async {
-            List<dynamic> usersList = await getUsersDataInSession(session.name);
+        Row(
+          children: [
+            TextButton(
+              onPressed: () async {
+                List<dynamic> usersList = await getUsersDataInSession(session.name);
 
-            _showUsersPopup(session.name, session.slotTal, session.slotEnt, session.isActive, session.users, usersList, rolesFilter, session.id );
-          },
-          child: const Text('Show users'),
+                _showUsersPopup(session.name, session.slotTal, session.slotEnt, session.isActive, session.users, usersList, rolesFilter, session.id );
+              },
+              child: const Text('Show users'),
+            ),
+            const Text(' | '),
+            TextButton(
+              onPressed: () async {
+                List<dynamic> usersList = await getUsersDataInSession(session.name);
+
+                _showMarksPopup(session.name, session.id, usersList, _sessions);
+              },
+              child: const Text('Show marks'),
+            )
+          ],
         )
       ),
       DataCell(
@@ -398,8 +405,8 @@ class _UsersDataSource extends DataTableSource {
                             children: [
                               const Text('Pending Users:'),
                               SizedBox(
-                                width: 600,
-                                height: 500,
+                                width: MediaQuery.sizeOf(context).width,
+                                height: MediaQuery.sizeOf(context).height,
                                 child: ListView.builder(
                                   itemCount: usersList.length,
                                   itemBuilder: (BuildContext context, int index) {
@@ -447,16 +454,19 @@ class _UsersDataSource extends DataTableSource {
                                                               child: TextFormField(
                                                                 controller: room,
                                                                 keyboardType: TextInputType.number,
+                                                                enabled: user['role'] == 'Talent',
                                                                 validator: (value) {
 
-                                                                  RegExp numberPattern = RegExp(r'^[1-9]|1[0-2]$');
+                                                                  RegExp numberPattern = RegExp(r'^(1[0-2]|[1-9])$');
 
-                                                                  if (value!.isEmpty) {
-                                                                    return "Please enter a number";
-                                                                  }
+                                                                  if (user['role'] == 'Talent') {
+                                                                    if (value!.isEmpty) {
+                                                                      return "Please enter a number";
+                                                                    }
 
-                                                                  if (!numberPattern.hasMatch(value)) {
-                                                                    return 'Please enter a number between 1 and 12';
+                                                                    if (!numberPattern.hasMatch(value)) {
+                                                                      return 'Please enter a number between 1 and 12';
+                                                                    }
                                                                   }
                                                                   return null;
                                                                 },
@@ -481,29 +491,41 @@ class _UsersDataSource extends DataTableSource {
                                                         if (_formKey.currentState!.validate()) {
                                                           String? eventId = await findEventBySessionId(sessionId);
                                                           List<String> events = List<String>.from(user['events'] ?? []);
-                                                          events.add(eventId!);
+                                                          events.add(eventId);
 
-                                                          updateUser(user['epicGamesId'], events, [sessionId], room.text, true, user['isAuthorized']);
                                                           if (user['role'] == 'Talent') {
+                                                            updateUser(user['epicGamesId'], events, [sessionId], room.text, true, user['isAuthorized']);
                                                             slotTal--;
+                                                            /*sendEmail(
+                                                                toEmail: user['email'],
+                                                                toName: user['name'],
+                                                                subject: 'Room N°${room.text}',
+                                                                htmlContent: htmlSecondContent
+                                                            );*/
                                                           } else {
+                                                            updateUser(user['epicGamesId'], events, [sessionId], "Entrepreneur", true, user['isAuthorized']);
                                                             slotEnt--;
+                                                            /*sendEmail(
+                                                                toEmail: user['email'],
+                                                                toName: user['name'],
+                                                                subject: 'TalentVerse',
+                                                                htmlContent: htmlThirdContent
+                                                            );*/
                                                           }
+                                                          setState(() {
+                                                            usersList[index];
+                                                            // Update other data as needed
+                                                          });
+                                                          room .text = "";
                                                           updateSession(name, slotTal, slotEnt, isActive, users, true);
 
                                                           Navigator.of(context).pop();
 
                                                           const snackBar = SnackBar(
-                                                            content: Text('The user has been updated'),
+                                                            content: Text('The user has been accepted'),
                                                           );
                                                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-                                                          sendEmail(
-                                                              toEmail: user['email'],
-                                                              toName: user['name'],
-                                                              subject: 'Room N°${room.text}',
-                                                              htmlContent: htmlSecondContent
-                                                          );
                                                         }
                                                       },
                                                       child: const Text('Accept'),
@@ -548,8 +570,8 @@ class _UsersDataSource extends DataTableSource {
                             children: [
                               const Text('Accepted Users'),
                               SizedBox(
-                                width: 600,
-                                height: 500,
+                                width: MediaQuery.sizeOf(context).width,
+                                height: MediaQuery.sizeOf(context).height,
                                 child: ListView.builder(
                                   itemCount: usersList.length,
                                   itemBuilder: (BuildContext context, int index) {
@@ -573,11 +595,28 @@ class _UsersDataSource extends DataTableSource {
                                               ),
                                             ),
                                             subtitle: Text(user['role']),
-                                            trailing: const Icon(
-                                              Icons.arrow_forward,
-                                              color: Colors.grey,
+                                            trailing: Column(
+                                              children: [
+                                                const Text("Room",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 15
+                                                  ),
+                                                ),
+                                                Text(user['room'],
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                )
+                                              ],
                                             ),
                                             onTap: () {
+                                              /*final eventId = await findEventBySessionId(sessionId);
+                                              final eventdata = await getEventDataById(eventId);
+                                              String session1id = eventdata?["sessions"][0];
+                                              String session2id = eventdata?["sessions"][1];
+                                              int selectedIndex = -1;*/
+
                                               showDialog<void>(
                                                 context: context,
                                                 builder: (BuildContext context) {
@@ -598,6 +637,19 @@ class _UsersDataSource extends DataTableSource {
                                                                 child: TextFormField(
                                                                   controller: room,
                                                                   keyboardType: TextInputType.number,
+                                                                  enabled: user['role'] == 'Talent',
+                                                                  validator: (value) {
+
+                                                                    RegExp numberPattern = RegExp(r'^(1[0-2]|[1-9])$');
+
+                                                                    if (user['role'] == 'Talent') {
+
+                                                                      if (!numberPattern.hasMatch(value!)) {
+                                                                        return 'Please enter a number between 1 and 12';
+                                                                      }
+                                                                    }
+                                                                    return null;
+                                                                  },
                                                                   decoration: const InputDecoration(
                                                                     prefixIcon: Padding(
                                                                       padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -664,6 +716,9 @@ class _UsersDataSource extends DataTableSource {
 
                                                             Navigator.of(context).pop();
 
+                                                            newSessionId.text = "";
+                                                            room .text = "";
+
                                                             const snackBar = SnackBar(
                                                               content: Text('The user has been updated'),
                                                             );
@@ -707,9 +762,7 @@ class _UsersDataSource extends DataTableSource {
                                         );
                                       }
                                     }
-                                    else {
-                                      return Container();
-                                    }
+                                    return Container();
                                   },
                                 ),
                               ),
@@ -735,6 +788,73 @@ class _UsersDataSource extends DataTableSource {
       },
     );
   }
+
+  void _showMarksPopup(String name, String sessionId, List<dynamic> usersList, List<Session> sessions) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(
+                'Talents in session $name',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              content: Container(
+                width: double.maxFinite,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Users Marks'),
+                      FutureBuilder(
+                        future: getTalentsWithMarksInSession(sessionId),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            List<Map<String, dynamic>> talentsWithMarks = snapshot.data!;
+
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: talentsWithMarks.length,
+                              itemBuilder: (context, index) {
+                                final talentId = talentsWithMarks[index]['talentId'];
+                                final mark = talentsWithMarks[index]['mark'];
+
+                                return ListTile(
+                                  title: Text('Talent: $talentId'),
+                                  subtitle: Text('Mark: $mark'),
+                                );
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Close'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
 
 }
 

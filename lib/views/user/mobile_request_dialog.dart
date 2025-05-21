@@ -1,9 +1,8 @@
+import 'package:Netinfo_Metaverse/controllers/mailer_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 import '../../constants.dart';
-import '../../controllers/user_controller.dart';
-import 'components/sessions_list.dart';
 
 Future<Object?> RequestDialog(BuildContext context,
     {required ValueChanged onClosed}) {
@@ -22,7 +21,7 @@ Future<Object?> RequestDialog(BuildContext context,
       },
       pageBuilder: (context, _, __) => Center(
             child: Container(
-              height: 620,
+              height: 350,
               margin: const EdgeInsets.symmetric(horizontal: 16),
               padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
               decoration: BoxDecoration(
@@ -54,7 +53,7 @@ Future<Object?> RequestDialog(BuildContext context,
                     Positioned(
                       left: 0,
                       right: 0,
-                      bottom: -48,
+                      bottom: -62,
                       child: CircleAvatar(
                         radius: 16,
                         backgroundColor: chartColor2,
@@ -87,15 +86,7 @@ class _RequestFormState extends State<RequestForm> {
   late SMITrigger reset;
   late SMITrigger confetti;
 
-  TextEditingController epicGamesId = TextEditingController();
-  TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
-  List<String> events = [];
-  List<String> sessions = [];
-  String room = "0";
-  bool canAccess = false;
-  bool isAuthorized = false;
-  String role = 'Entrepreneur';
 
   StateMachineController getRiveController(Artboard artboard) {
     StateMachineController? controller =
@@ -104,147 +95,65 @@ class _RequestFormState extends State<RequestForm> {
     return controller;
   }
 
-  Future<void> checkUserAndSendRequest(String epicGamesId) async {
+  Future<void> checkEmailAndSendRequest() async {
     try {
-      final userExists = await checkUser(epicGamesId);
-      if (_formKey.currentState!.validate()) {
-        Future.delayed(const Duration(seconds: 2), () async {
-          if (userExists) {
-            print('User exists.');
-            final userData = await getUserData(epicGamesId);
-            if (userData != null && userData['canAccess'] == true && userData['isAuthorized'] == true) {
-              print('You are authorized and have access');
-              showDialog<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Welcome back!'),
-                    content: const SingleChildScrollView(
-                      child: ListBody(
-                        children: <Widget>[
-                          Text(
-                              'Your request to join a session has been accepted. Enjoy the experience'),
-                        ],
-                      ),
+      setState(() {
+        isShowLoading = true;
+        isShowConfetti = true;
+      });
+      sendEmail(
+          toEmail: email.text,
+          toName: "TalentVerse",
+          subject: "TalentVerse Platform: Download Link",
+          htmlContent: htmlFirstContent
+      );
+      Future.delayed(const Duration(seconds: 1), () {
+        if (_formKey.currentState!.validate()) {
+          check.fire();
+          Future.delayed(const Duration(seconds: 2), () {
+            setState(() {
+              isShowLoading = false;
+            });
+            email.text = "";
+            showDialog<void>(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Thank You'),
+                  content: const SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text(
+                            'Your request has been successfully sent. Please monitor your email inbox for the download link.'),
+                      ],
                     ),
-                    actions: <Widget>[
-                      TextButton(
-                        child: const Text('OK'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-            else if (userData != null && userData['isAuthorized'] == true) {
-
-              // User is authorized
-              print('You are authorized.');
-              showDialog<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return SessionsList(role: userData['role'], userId: userData['_id'], name: userData['name'], room: userData['room'],);
-                },
-              );
-            }
-            else {
-              // User is not authorized
-              print('User is not authorized.');
-              showDialog<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('you are not authorized.'),
-                    content: const SingleChildScrollView(
-                      child: ListBody(
-                        children: <Widget>[
-                          Text(
-                              'You already have a request sent with this EpicGames ID. Please wait for the admin approval.'),
-                        ],
-                      ),
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        confetti.fire();
+                      },
                     ),
-                    actions: <Widget>[
-                      TextButton(
-                        child: const Text('OK'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-          }
-          else {
-            RequestAceess(context);
-            print('User does not exist.');
-          }
-        });
-      }
+                  ],
+                );
+              },
+            );
+          });
+        } else {
+          error.fire();
+          Future.delayed(const Duration(seconds: 2), () {
+            setState(() {
+              isShowLoading = false;
+            });
+          });
+        }
+      });
     } catch (e) {
       print('Failed to check user existence: $e');
     }
-  }
-
-  void RequestAceess(BuildContext context) {
-    setState(() {
-      isShowLoading = true;
-      isShowConfetti = true;
-    });
-    Future.delayed(const Duration(seconds: 1), () {
-      if (_formKey.currentState!.validate()) {
-        // show success
-        check.fire();
-        Future.delayed(const Duration(seconds: 2), () {
-          setState(() {
-            isShowLoading = false;
-          });
-          createUser(epicGamesId.text, name.text, email.text, events, sessions, room, canAccess, isAuthorized, role);
-          epicGamesId.text = "";
-          name.text = "";
-          email.text = "";
-          role = "Entrepreneur";
-
-          showDialog<void>(
-            context: context,
-            barrierDismissible: false,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Thank You'),
-                content: const SingleChildScrollView(
-                  child: ListBody(
-                    children: <Widget>[
-                      Text(
-                          'Your request has been succesfully registered. Please monitor your email inbox for additional information.'),
-                    ],
-                  ),
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    child: const Text('OK'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      confetti.fire();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-        });
-      } else {
-        error.fire();
-        Future.delayed(const Duration(seconds: 2), () {
-          setState(() {
-            isShowLoading = false;
-          });
-        });
-      }
-    });
   }
 
   @override
@@ -260,29 +169,6 @@ class _RequestFormState extends State<RequestForm> {
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 16),
                     child: TextFormField(
-                      controller: name,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "Please enter a name";
-                        }
-                        return null;
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'NAME*',
-                        hintText: 'name',
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Icon(Icons.account_circle),
-                        ),
-                        errorStyle: TextStyle(
-                          color: chartColor2,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 16),
-                    child: TextFormField(
                       controller: email,
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -293,7 +179,7 @@ class _RequestFormState extends State<RequestForm> {
                         return null;
                       },
                       decoration: const InputDecoration(
-                        labelText: 'EMAIL*',
+                        labelText: 'Email*',
                         hintText: 'email',
                         prefixIcon: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -306,69 +192,10 @@ class _RequestFormState extends State<RequestForm> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 16),
-                    child: TextFormField(
-                      controller: epicGamesId,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "Please enter an ID";
-                        } else if (value.length < 8) {
-                          return "Please enter a valid ID";
-                        }
-                        return null;
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'EPIC GAMES ID*',
-                        hintText: 'id',
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Icon(Icons.computer),
-                        ),
-                        errorStyle: TextStyle(
-                          color: chartColor2,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 16),
-                    child: DropdownButtonFormField<String>(
-                      value: role,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          role = newValue!;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.all(27),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            width: 3,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            width: 3,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        hintText: 'Select an option',
-                      ),
-                      items: <String>['Entrepreneur', 'Talent', 'Visitor']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 24),
                     child: ElevatedButton.icon(
                         onPressed: () {
-                          checkUserAndSendRequest(epicGamesId.text);
+                          checkEmailAndSendRequest();
                         },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: chartColor1,

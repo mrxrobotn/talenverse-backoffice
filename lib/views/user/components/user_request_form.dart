@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../../constants.dart';
 import '../../../controllers/user_controller.dart';
 
@@ -32,6 +33,7 @@ class _RequestFormState extends State<RequestForm> {
   bool canAccess = false;
   bool isAuthorized = false;
   String role = 'Entrepreneur';
+  bool _isButtonDisabled = false;
 
   StateMachineController getRiveController(Artboard artboard) {
     StateMachineController? controller =
@@ -76,6 +78,9 @@ class _RequestFormState extends State<RequestForm> {
             SendResquestData(context);
             print('User does not exist.');
           }
+        });
+        setState(() {
+          _isButtonDisabled = true;
         });
       }
     } catch (e) {
@@ -199,14 +204,14 @@ class _RequestFormState extends State<RequestForm> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 16),
+                    padding: const EdgeInsets.only(top: 8.0),
                     child: TextFormField(
                       controller: epicGamesId,
                       validator: (value) {
-                        if (value!.isEmpty) {
+                        if (value == null || value.isEmpty) {
                           return "Please enter an ID";
-                        } else if (value.length < 8) {
-                          return "Please enter a valid ID";
+                        } else if (!RegExp(r'^[a-z0-9]{32}$').hasMatch(value)) {
+                          return "Please enter a valid Epic Games ID (32 characters)";
                         }
                         return null;
                       },
@@ -218,11 +223,21 @@ class _RequestFormState extends State<RequestForm> {
                           child: Icon(Icons.computer),
                         ),
                         errorStyle: TextStyle(
-                          color: chartColor2,
+                          color: Colors.red,
                         ),
                       ),
                     ),
                   ),
+                  Wrap(
+                    children: [
+                      const Text("If you don't have an Epic Games account, please follow "),
+                      InkWell(
+                          child: const Text('this link.', style: TextStyle(fontWeight: FontWeight.bold, color: chartColor1),),
+                          onTap: () => launchUrl(Uri.parse('https://www.epicgames.com/id/register/date-of-birth?redirect_uri=https%3A%2F%2Fwww.epicgames.com%2Faccount'))
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 16),
                     child: DropdownButtonFormField<String>(
@@ -260,7 +275,7 @@ class _RequestFormState extends State<RequestForm> {
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 24),
                     child: ElevatedButton.icon(
-                        onPressed: () {
+                        onPressed: _isButtonDisabled ? null : () {
                           checkUserAndSendRequest(epicGamesId.text);
                         },
                         style: ElevatedButton.styleFrom(

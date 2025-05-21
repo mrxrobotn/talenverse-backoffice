@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../private_credentials.dart';
 
 void sendEmail({
   required String toEmail,
@@ -7,17 +8,15 @@ void sendEmail({
   required String subject,
   required String htmlContent,
 }) async {
-  const apiKey = 'https://api.brevo.com/v3/smtp/email';
-  const apiToken = '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';
 
   final headers = {
     'accept': 'application/json',
-    'api-key': apiToken,
+    'api-key': MAILER_API_KEY,
     'content-type': 'application/json',
   };
 
   final emailData = {
-    'sender': {'name': 'TalentVerse', 'email': 'production@dall4all.org'},
+    'sender': {'name': 'Talent Verse Team', 'email': 'production@dall4all.org'},
     'to': [{'email': toEmail, 'name': toName}],
     'subject': subject,
     'htmlContent': htmlContent,
@@ -25,7 +24,7 @@ void sendEmail({
 
   try {
     final response = await http.post(
-      Uri.parse(apiKey),
+      Uri.parse(MAILER_API_URL),
       headers: headers,
       body: jsonEncode(emailData),
     );

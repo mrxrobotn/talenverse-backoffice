@@ -1,12 +1,12 @@
-import 'package:Netinfo_Metaverse/views/admin/components/events_page.dart';
-import 'package:Netinfo_Metaverse/views/admin/components/sessions_page.dart';
-
+import 'package:Netinfo_Metaverse/views/admin/components/rooms_list.dart';
+import 'package:flutter/material.dart';
+import '../../responsive_layout.dart';
 import '/components/appbar.dart';
 import '/components/drawer.dart';
 import '/views/admin/components/requests_list.dart';
 import '/views/admin/components/users_list.dart';
-import 'package:flutter/material.dart';
-import '../../responsive_layout.dart';
+import '/views/admin/components/events_page.dart';
+import '/views/admin/components/sessions_page.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -16,100 +16,60 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  int currentIndex = 1;
   late Widget currentWidget;
 
   @override
   void initState() {
     super.initState();
-    currentWidget = const SingleChildScrollView(
-      child: UsersList(),
+    currentWidget = const UsersList();
+  }
+
+  void updateContent(Widget widget) {
+    setState(() {
+      currentWidget = widget;
+    });
+  }
+
+  Widget buildDashboardLayout({required bool isDesktop}) {
+    final drawer = MyDrawer(
+      displayRequests: () => updateContent(const RequestsList()),
+      displayUsers: () => updateContent(const UsersList()),
+      displayEvents: () => updateContent(const EventsPage()),
+      displaySessions: () => updateContent(const SessionsPage()),
+      displayRooms: () => updateContent(const RoomsList()),
     );
-  }
 
-  void openRequests() {
-    setState(() {
-      currentWidget = const SingleChildScrollView(
-        child: RequestsList(),
-      );
-    });
-  }
+    final content = SingleChildScrollView(child: currentWidget);
 
-  void openUsers() {
-    setState(() {
-      currentWidget = const SingleChildScrollView(
-        child: UsersList(),
+    if (isDesktop) {
+      return Row(
+        children: [
+          drawer,
+          Expanded(child: content),
+        ],
       );
-    });
-  }
-
-  void openEvents() {
-    setState(() {
-      currentWidget = const SingleChildScrollView(
-        child: EventsPage(),
+    } else {
+      return Scaffold(
+        appBar: const PreferredSize(
+          preferredSize: Size.fromHeight(80),
+          child: MyAppBar(),
+        ),
+        drawer: drawer,
+        body: content,
       );
-    });
-  }
-
-  void openSessions() {
-    setState(() {
-      currentWidget = const SingleChildScrollView(
-        child: SessionsPage(),
-      );
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return SelectionArea(
       child: ResponsiveLayout(
-          tiny: Scaffold(
-            appBar: const PreferredSize(
-              preferredSize: Size(double.infinity, 80),
-              child: MyAppBar(),
-            ),
-            body: Expanded(child: currentWidget),
-            drawer: MyDrawer(displayRequests: openRequests, displayUsers: openUsers, displaySessions: openSessions, displayEvents: openEvents),
-          ),
-          phone: Scaffold(
-            appBar: const PreferredSize(
-              preferredSize: Size(double.infinity, 80),
-              child: MyAppBar(),
-            ),
-            body: Expanded(child: currentWidget),
-            drawer:
-            MyDrawer(displayRequests: openRequests, displayUsers: openUsers, displaySessions: openSessions, displayEvents: openEvents),
-          ),
-          tablet: Scaffold(
-            appBar: const PreferredSize(
-              preferredSize: Size(double.infinity, 80),
-              child: MyAppBar(),
-            ),
-            body: Expanded(child: currentWidget),
-            drawer:
-            MyDrawer(displayRequests: openRequests, displayUsers: openUsers, displaySessions: openSessions, displayEvents: openEvents),
-          ),
-          largeTablet: Scaffold(
-            body: Row(
-              children: [
-                MyDrawer(displayRequests: openRequests, displayUsers: openUsers, displaySessions: openSessions, displayEvents: openEvents),
-                Expanded(child: currentWidget)
-              ],
-            ),
-            drawer:
-            MyDrawer(displayRequests: openRequests, displayUsers: openUsers, displaySessions: openSessions, displayEvents: openEvents),
-          ),
-          computer: Scaffold(
-            body: Row(
-              children: [
-                MyDrawer(displayRequests: openRequests, displayUsers: openUsers, displaySessions: openSessions, displayEvents: openEvents),
-                Expanded(child: currentWidget)
-              ],
-            ),
-            drawer:
-            MyDrawer(displayRequests: openRequests, displayUsers: openUsers, displaySessions: openSessions, displayEvents: openEvents),
-          ),
-      )
+        phone: buildDashboardLayout(isDesktop: false),
+        tablet: buildDashboardLayout(isDesktop: false),
+        computer: Scaffold(
+          body: buildDashboardLayout(isDesktop: true),
+        ),
+      ),
     );
   }
 }
