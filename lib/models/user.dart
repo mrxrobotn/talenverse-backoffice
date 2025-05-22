@@ -7,6 +7,7 @@ class User {
   final String room;
   late final bool canAccess;
   late final bool isAuthorized;
+  late final bool enableRoomCreator;
   String role;
 
   User({
@@ -18,6 +19,7 @@ class User {
     required this.room,
     required this.canAccess,
     required this.isAuthorized,
+    required this.enableRoomCreator,
     required this.role,
   });
 
@@ -39,6 +41,7 @@ class User {
           : json['room']?.toString() ?? '',
       canAccess: json['canAccess'],
       isAuthorized: json['isAuthorized'],
+      enableRoomCreator: json['enableRoomCreator'],
       role: json['role'],
     );
   }

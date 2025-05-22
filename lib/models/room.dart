@@ -126,12 +126,14 @@ class Asset {
 }
 
 class Room {
+  final String id; // <-- Add this
   final String ownerEpicGamesId;
   final String roomNumber;
   bool approved;
   final List<Asset> assets;
 
   Room({
+    required this.id, // <-- Include here
     required this.ownerEpicGamesId,
     required this.roomNumber,
     required this.approved,
@@ -139,6 +141,7 @@ class Room {
   });
 
   factory Room.fromJson(Map<String, dynamic> json) => Room(
+    id: json['_id'],
     ownerEpicGamesId: json['owner_epicGamesId'],
     roomNumber: json['room_number'],
     approved: json['approved'] ?? false,

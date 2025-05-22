@@ -36,8 +36,8 @@ class RoomManager {
   }
 
   // Get Room by room_id
-  static Future<Room?> getRoom(String roomId) async {
-    final url = Uri.parse('$SERVER_API_URL/rooms/$roomId');
+  static Future<Room?> getRoom(String ownerEpicGamesId) async {
+    final url = Uri.parse('$SERVER_API_URL/rooms/$ownerEpicGamesId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -60,8 +60,8 @@ class RoomManager {
   }
 
   // Update Room
-  static Future<Room?> updateRoom(String roomId, Map<String, dynamic> updates) async {
-    final url = Uri.parse('$SERVER_API_URL/rooms/$roomId');
+  static Future<Room?> updateRoom(String ownerEpicGamesId, Map<String, dynamic> updates) async {
+    final url = Uri.parse('$SERVER_API_URL/rooms/$ownerEpicGamesId');
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -76,75 +76,10 @@ class RoomManager {
   }
 
   // Delete Room
-  static Future<bool> deleteRoom(String roomId) async {
-    final url = Uri.parse('$SERVER_API_URL/rooms/roomId');
+  static Future<bool> deleteRoom(String ownerEpicGamesId) async {
+    final url = Uri.parse('$SERVER_API_URL/rooms/ownerEpicGamesId');
     final response = await http.delete(url);
 
     return response.statusCode == 200;
-  }
-
-  // Add Asset to Room
-  static Future<Room?> addAsset(String roomId, Asset asset) async {
-    final url = Uri.parse('$SERVER_API_URL/rooms/$roomId/asset');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(asset.toJson()),
-    );
-
-    if (response.statusCode == 201) {
-      return Room.fromJson(jsonDecode(response.body));
-    } else {
-      return null;
-    }
-  }
-
-  // Update Asset
-  static Future<Asset?> updateAsset(String roomId, String assetId, Map<String, dynamic> updates) async {
-    final url = Uri.parse('$SERVER_API_URL/rooms/$roomId/asset/$assetId');
-    final response = await http.put(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(updates),
-    );
-
-    if (response.statusCode == 200) {
-      return Asset.fromJson(jsonDecode(response.body));
-    } else {
-      return null;
-    }
-  }
-
-  // Delete Asset
-  static Future<bool> deleteAsset(String roomId, String assetId) async {
-    final url = Uri.parse('$SERVER_API_URL/rooms/$roomId/asset/$assetId');
-    final response = await http.delete(url);
-
-    return response.statusCode == 200;
-  }
-
-  // Get All Assets for a Room
-  static Future<List<Asset>> getAllAssetsByRoomId(String roomId) async {
-    final url = Uri.parse('$SERVER_API_URL/rooms/$roomId/asset');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      List data = jsonDecode(response.body);
-      return data.map((e) => Asset.fromJson(e)).toList();
-    } else {
-      return [];
-    }
-  }
-
-  // Get Specific Asset by asset_id
-  static Future<Asset?> getAssetById(String roomId, String assetId) async {
-    final url = Uri.parse('$SERVER_API_URL/rooms/$roomId/asset/$assetId');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      return Asset.fromJson(jsonDecode(response.body));
-    } else {
-      return null;
-    }
   }
 }

@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../private_credentials.dart';
 import '../models/user.dart';
 
-Future<void> createUser(String epicGamesId, String name, String email, List<String> events, List<String> sessions, String room, bool canAccess,bool isAuthorized, String role) async {
+Future<void> createUser(String epicGamesId, String name, String email, List<String> events, List<String> sessions, String room, bool canAccess,bool isAuthorized, String role, bool enableRoomCreator) async {
 
   final response = await http.post(
     Uri.parse('$SERVER_API_URL/users'),
@@ -20,6 +20,7 @@ Future<void> createUser(String epicGamesId, String name, String email, List<Stri
       'canAccess': canAccess,
       'isAuthorized': isAuthorized,
       'role': role,
+      'enableRoomCreator': enableRoomCreator,
     }),
   );
 
@@ -73,7 +74,7 @@ Future<List<User>> fetchUsers() async {
   }
 }
 
-Future<void> updateUser(String epicGamesId, List<String> events, List<String> sessions, String room, bool canAccess, bool isAuthorized) async {
+Future<void> updateUser(String epicGamesId, List<String> events, List<String> sessions, String room, bool canAccess, bool isAuthorized, bool enableRoomCreator) async {
   final response = await http.put(
     Uri.parse('$SERVER_API_URL/users/$epicGamesId'),
     headers: {
@@ -85,6 +86,7 @@ Future<void> updateUser(String epicGamesId, List<String> events, List<String> se
       'room': room,
       'canAccess': canAccess,
       'isAuthorized': isAuthorized,
+      'enableRoomCreator': enableRoomCreator,
     }),
   );
 

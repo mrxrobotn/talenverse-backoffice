@@ -304,7 +304,7 @@ Future<void> updateUserAfterMove(String destinationSessionId, String userId) asy
       final sessions = [destinationSessionId];
 
       // Make the update user request
-      await updateUser(userData['epicGamesId'], events, sessions, userData['room'], userData['canAccess'], userData['isAuthorized']);
+      await updateUser(userData['epicGamesId'], events, sessions, userData['room'], userData['canAccess'], userData['isAuthorized'], userData['enableRoomCreator']);
     } else {
       print('Error getting user data: ${getUserResponse.statusCode}');
       // Handle error response

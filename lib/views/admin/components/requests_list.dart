@@ -267,7 +267,7 @@ class _RequestsListState extends State<RequestsList> {
                                       subject: 'Welcome to Talent Verse!',
                                       htmlContent: htmlFirstContent,
                                     );*/
-                                    updateUser(user.epicGamesId, user.events, user.sessions, user.room, true, !user.isAuthorized);
+                                    updateUser(user.epicGamesId, user.events, user.sessions, user.room, true, !user.isAuthorized, user.enableRoomCreator);
                                     Navigator.of(context).pop();
 
                                     const snackBar = SnackBar(
@@ -368,7 +368,7 @@ class _UsersDataSource extends DataTableSource {
                             Navigator.of(context).pop();
                           });
                         }
-                        updateUser(user.epicGamesId, user.events, ['65b8ec1c230dcc92f073cf65'], user.room, true, !user.isAuthorized);
+                        updateUser(user.epicGamesId, user.events, ['65b8ec1c230dcc92f073cf65'], user.room, true, !user.isAuthorized, user.enableRoomCreator);
                       },
                     ),
                     TextButton(

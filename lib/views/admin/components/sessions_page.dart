@@ -494,7 +494,7 @@ class _UsersDataSource extends DataTableSource {
                                                           events.add(eventId);
 
                                                           if (user['role'] == 'Talent') {
-                                                            updateUser(user['epicGamesId'], events, [sessionId], room.text, true, user['isAuthorized']);
+                                                            updateUser(user['epicGamesId'], events, [sessionId], room.text, true, user['isAuthorized'], user['enableRoomCreator']);
                                                             slotTal--;
                                                             /*sendEmail(
                                                                 toEmail: user['email'],
@@ -503,7 +503,7 @@ class _UsersDataSource extends DataTableSource {
                                                                 htmlContent: htmlSecondContent
                                                             );*/
                                                           } else {
-                                                            updateUser(user['epicGamesId'], events, [sessionId], "Entrepreneur", true, user['isAuthorized']);
+                                                            updateUser(user['epicGamesId'], events, [sessionId], "Entrepreneur", true, user['isAuthorized'], user['enableRoomCreator']);
                                                             slotEnt--;
                                                             /*sendEmail(
                                                                 toEmail: user['email'],
@@ -693,7 +693,7 @@ class _UsersDataSource extends DataTableSource {
                                                             List<String> sessions = (user['sessions'] as List<dynamic>).cast<String>();
 
                                                             if (room.text.isNotEmpty) {
-                                                              updateUser(user['epicGamesId'], events, sessions, room.text, true, user['isAuthorized']);
+                                                              updateUser(user['epicGamesId'], events, sessions, room.text, true, user['isAuthorized'], user['enableRoomCreator']);
                                                             }
 
                                                             if (newSessionId.text.isNotEmpty) {
@@ -735,7 +735,7 @@ class _UsersDataSource extends DataTableSource {
                                                           } else {
                                                             slotEnt++;
                                                           }
-                                                          updateUser(user['epicGamesId'], [], [], "0", false, true);
+                                                          updateUser(user['epicGamesId'], [], [], "0", false, true, user['enableRoomCreator']);
                                                           deleteUserFromSession(name, user['_id']);
                                                           updateSession(name, slotTal, slotEnt, isActive, users, true);
 

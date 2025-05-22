@@ -288,7 +288,7 @@ class _UsersListState extends State<UsersList> {
                                 TextButton(
                                   child: const Text('Yes'),
                                   onPressed: () {
-                                    updateUser(user.epicGamesId, user.events, user.sessions, user.room, !user.canAccess, user.isAuthorized);
+                                    updateUser(user.epicGamesId, user.events, user.sessions, user.room, !user.canAccess, user.isAuthorized, user.enableRoomCreator);
                                     Navigator.of(context).pop();
                                     const snackBar = SnackBar(
                                       content: Text(
@@ -387,7 +387,7 @@ class _UsersDataSource extends DataTableSource {
                     TextButton(
                       child: const Text('Yes'),
                       onPressed: () {
-                        updateUser(user.epicGamesId, user.events, user.sessions, user.room, !user.canAccess, user.isAuthorized);
+                        updateUser(user.epicGamesId, user.events, user.sessions, user.room, !user.canAccess, user.isAuthorized, user.enableRoomCreator);
                         Navigator.of(context).pop();
                         const snackBar = SnackBar(
                           content:

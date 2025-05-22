@@ -31,6 +31,7 @@ class _RequestFormState extends State<RequestForm> {
   List<String> sessions = [];
   String room = "0";
   bool canAccess = false;
+  bool enableRoomCreator = false;
   bool isAuthorized = false;
   String role = 'Entrepreneur';
   bool _isButtonDisabled = false;
@@ -101,7 +102,7 @@ class _RequestFormState extends State<RequestForm> {
           setState(() {
             isShowLoading = false;
           });
-          createUser(epicGamesId.text, name.text, email.text, events, sessions, room, canAccess, isAuthorized, role);
+          createUser(epicGamesId.text, name.text, email.text, events, sessions, room, canAccess, isAuthorized, role, enableRoomCreator);
           epicGamesId.text = "";
           name.text = "";
           email.text = "";
